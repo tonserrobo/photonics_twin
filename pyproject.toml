@@ -26,7 +26,7 @@ dev = [
 [tool.scikit-build]
 cmake.version = ">=3.24"
 cmake.build-type = "Release"
-wheel.packages = ["src/photonics_core"]
+wheel.packages = ["src/photonics_core", "src/backend/photonics_twin_app"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests/python"]
