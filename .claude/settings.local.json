@@ -21,7 +21,14 @@
       "Bash(./ctest.exe --test-dir \"C:/Users/Tony/OneDrive - Ulster University/SPEAR/photonics_twin/build\" -C Debug --output-on-failure)",
       "Bash(./photonics_tests.exe --gtest_filter=\"BraggGrating.ReflectancePeaksAtCentre\")",
       "Bash(tee test_output.txt)",
-      "Bash(./ctest.exe --test-dir \"C:/Users/Tony/OneDrive - Ulster University/SPEAR/photonics_twin/build\" -C Debug)"
+      "Bash(./ctest.exe --test-dir \"C:/Users/Tony/OneDrive - Ulster University/SPEAR/photonics_twin/build\" -C Debug)",
+      "Bash(uv --version)",
+      "Bash(uv venv *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Professional\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\CMake\\\\CMake\\\\bin\\\\cmake.exe\" -B \"C:\\\\Users\\\\Tony\\\\OneDrive - Ulster University\\\\SPEAR\\\\photonics_twin\\\\build\" -S \"C:\\\\Users\\\\Tony\\\\OneDrive - Ulster University\\\\SPEAR\\\\photonics_twin\" -DPHOTONICS_BUILD_TESTS=ON 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Professional\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\CMake\\\\CMake\\\\bin\\\\cmake.exe\" --build \"C:\\\\Users\\\\Tony\\\\OneDrive - Ulster University\\\\SPEAR\\\\photonics_twin\\\\build\" 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Professional\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\CMake\\\\CMake\\\\bin\\\\ctest.exe\" --test-dir \"C:\\\\Users\\\\Tony\\\\OneDrive - Ulster University\\\\SPEAR\\\\photonics_twin\\\\build\" -C Debug --output-on-failure 2>&1)",
+      "Bash(uv run *)",
+      "Bash(uv pip *)"
     ]
   }
 }

@@ -9,7 +9,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(PHOTONICS_BUILD_TESTS "Build C++ unit tests" ON)
 
 add_subdirectory(src/core)
-add_subdirectory(src/bindings)
+
+if(SKBUILD)
+    add_subdirectory(src/bindings)
+endif()
 
 if(PHOTONICS_BUILD_TESTS AND NOT SKBUILD)
     enable_testing()

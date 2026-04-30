@@ -1,0 +1,25 @@
+{
+  "description": "Si/SiO2 quarter-wave Bragg @ 1550 nm, 15 periods, vacuum incident & substrate. Reference: Born & Wolf \u00a71.6.5.",
+  "params": {
+    "material_high": "Si",
+    "material_low": "SiO2",
+    "centre_nm": 1550.0,
+    "periods": 15
+  },
+  "sweep": {
+    "start_nm": 800.0,
+    "stop_nm": 2400.0,
+    "n_points": 801
+  },
+  "reference": {
+    "peak_reflectance": 1.0,
+    "peak_reflectance_tol": 0.001,
+    "peak_wavelength_nm": 1550.0,
+    "peak_wavelength_tol_nm": 0.5,
+    "stop_band_edge_low_nm": 1219.3369,
+    "stop_band_edge_high_nm": 2126.7334,
+    "stop_band_edge_tol_nm": 10.0
+  },
+  "n_high_at_centre": 3.477724,
+  "n_low_at_centre": 1.444024
+}

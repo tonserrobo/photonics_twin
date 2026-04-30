@@ -12,7 +12,7 @@ add_executable(photonics_tests
     test_tmm.cpp
     test_bragg.cpp
 )
-target_link_libraries(photonics_tests PRIVATE photonics_core GTest::gtest_main)
+target_link_libraries(photonics_tests PRIVATE photonics_core_lib GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(photonics_tests)
