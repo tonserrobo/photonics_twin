@@ -28,7 +28,17 @@
       "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Professional\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\CMake\\\\CMake\\\\bin\\\\cmake.exe\" --build \"C:\\\\Users\\\\Tony\\\\OneDrive - Ulster University\\\\SPEAR\\\\photonics_twin\\\\build\" 2>&1)",
       "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Professional\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\CMake\\\\CMake\\\\bin\\\\ctest.exe\" --test-dir \"C:\\\\Users\\\\Tony\\\\OneDrive - Ulster University\\\\SPEAR\\\\photonics_twin\\\\build\" -C Debug --output-on-failure 2>&1)",
       "Bash(uv run *)",
-      "Bash(uv pip *)"
+      "Bash(uv pip *)",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -fsS http://127.0.0.1:8000/healthz)",
+      "Bash(kill %1)",
+      "Bash(kill 1103)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill *)"
     ]
   }
 }
