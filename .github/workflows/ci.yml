@@ -1,0 +1,42 @@
+name: CI
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+
+jobs:
+  cpp-and-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install C++ toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ cmake ninja-build
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+      - name: uv sync
+        run: uv pip install --system .[dev]
+      - name: Configure & build C++
+        run: |
+          cmake -B build -S . -GNinja -DPHOTONICS_BUILD_TESTS=ON
+          cmake --build build --parallel
+      - name: Run C++ tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Run pytest
+        run: pytest tests/python -v
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: npm install + build + lint
+        working-directory: src/frontend
+        run: |
+          npm ci || npm install
+          npm run build
+          npm run lint || echo "lint-warnings-only"

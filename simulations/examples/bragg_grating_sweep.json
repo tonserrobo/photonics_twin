@@ -1,0 +1,10 @@
+{
+  "component": "bragg_grating",
+  "params": {
+    "material_high": "Si", "material_low": "SiO2",
+    "centre_nm": 1550.0, "periods": 15
+  },
+  "sweep": {
+    "start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 501
+  }
+}

@@ -38,7 +38,18 @@
       "Bash(kill 1103)",
       "Bash(echo \"exit:$?\")",
       "Bash(netstat -ano)",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Bash(docker *)",
+      "Bash(curl *)",
+      "Bash(C:/Program Files/Microsoft Visual Studio/2022/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe *)",
+      "Bash(C:/Program Files/Microsoft Visual Studio/2022/Professional/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/ctest.exe *)",
+      "Bash(python -c ' *)",
+      "Bash(bash scripts/smoke_docker.sh)",
+      "PowerShell(pwsh -NoProfile -File scripts\\\\smoke_docker.ps1 2>&1 | Select-Object -Last 25)",
+      "PowerShell(.venv\\\\Scripts\\\\python.exe -m pytest tests/python -q 2>&1 | Select-Object -Last 15)",
+      "Bash(python *)",
+      "Bash(cp /tmp/nginx.good docker/nginx.conf)",
+      "Bash(grep -n 'resolver\\\\|set $backend' docker/nginx.conf)"
     ]
   }
 }

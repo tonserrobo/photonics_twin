@@ -1,5 +1,6 @@
 """Orchestration between the FastAPI layer and the C++ photonics_core module."""
 import json
+import os
 import time
 from functools import lru_cache
 from pathlib import Path
@@ -9,8 +10,11 @@ import numpy as np
 import photonics_core as pc
 from photonics_twin_app.schemas import BraggParams, Sweep
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-MATERIALS_DIR = REPO_ROOT / "data" / "materials"
+# parents[3] only resolves in the source tree; once installed to site-packages it
+# points at the interpreter's lib dir. PHOTONICS_DATA_DIR is how containers say where
+# data actually landed.
+DATA_DIR = Path(os.environ.get("PHOTONICS_DATA_DIR", Path(__file__).resolve().parents[3] / "data"))
+MATERIALS_DIR = DATA_DIR / "materials"
 
 @lru_cache(maxsize=8)
 def _material(name: str) -> pc.Material:

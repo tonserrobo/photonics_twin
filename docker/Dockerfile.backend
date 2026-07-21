@@ -1,0 +1,26 @@
+FROM python:3.12-slim AS build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ cmake git ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir uv
+WORKDIR /app
+COPY pyproject.toml CMakeLists.txt README.md ./
+COPY src ./src
+COPY data ./data
+RUN uv pip install --system .
+
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libstdc++6 && rm -rf /var/lib/apt/lists/*
+COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /app/data /app/data
+WORKDIR /app
+
+# sim.py can no longer infer this from __file__ once installed to site-packages.
+ENV PHOTONICS_DATA_DIR=/app/data
+
+USER nobody
+EXPOSE 8000
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/healthz')"
+CMD ["uvicorn", "photonics_twin_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
