@@ -1,4 +1,7 @@
-# Thin wrapper over `docker compose build` — the build context and Dockerfile paths
+# Keep this file ASCII-only: without a BOM, Windows PowerShell 5.1 decodes .ps1 as
+# cp1252, so a stray UTF-8 dash or quote becomes mojibake and fails to parse.
+#
+# Thin wrapper over `docker compose build`. The build context and Dockerfile paths
 # stay defined once, in docker-compose.yml. This only adds the version tag and a
 # summary, so there is no second copy of the build config to drift.
 #
@@ -20,7 +23,7 @@ try {
     if (-not $Tag) {
         # Anchored to line start so tool.scikit-build's `cmake.version` can't match.
         $m = Select-String -Path pyproject.toml -Pattern '^version\s*=\s*"([^"]+)"' | Select-Object -First 1
-        if (-not $m) { throw "no [project] version found in pyproject.toml — pass -Tag explicitly" }
+        if (-not $m) { throw "no [project] version found in pyproject.toml - pass -Tag explicitly" }
         $Tag = $m.Matches[0].Groups[1].Value
     }
     $env:TAG = $Tag

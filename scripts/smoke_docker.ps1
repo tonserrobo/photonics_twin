@@ -14,13 +14,15 @@ try {
     docker compose up -d --no-deps frontend
     $solo = $false
     foreach ($i in 1..20) {
-        try { Invoke-WebRequest http://localhost:5173/ -TimeoutSec 2 | Out-Null; $solo = $true; break }
+        # -UseBasicParsing is required on Windows PowerShell 5.1: the default HTML
+        # parser needs Internet Explorer, which no longer exists on Windows 11.
+        try { Invoke-WebRequest http://localhost:5173/ -UseBasicParsing -TimeoutSec 2 | Out-Null; $solo = $true; break }
         catch { Start-Sleep -Seconds 1 }
     }
     if (-not $solo) { Fail "nginx did not serve the UI without a backend" }
 
     try {
-        Invoke-WebRequest http://localhost:5173/healthz -TimeoutSec 5 | Out-Null
+        Invoke-WebRequest http://localhost:5173/healthz -UseBasicParsing -TimeoutSec 5 | Out-Null
         Fail "expected /healthz to fail with no backend running"
     } catch {
         $code = $_.Exception.Response.StatusCode.value__
@@ -69,7 +71,7 @@ try {
     $ws.Dispose()
 
     # UI must actually be served, not just the proxied endpoints.
-    if ((Invoke-WebRequest http://localhost:5173/).Content -notmatch 'id="root"') { Fail "UI not served" }
+    if ((Invoke-WebRequest http://localhost:5173/ -UseBasicParsing).Content -notmatch 'id="root"') { Fail "UI not served" }
 
     Write-Host "PASS: healthz, simulate (materials loaded), websocket, UI served" -ForegroundColor Green
 }
