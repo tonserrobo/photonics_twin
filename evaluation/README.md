@@ -34,6 +34,7 @@ broken build cannot silently produce plausible-looking research artifacts.
 | `outputs/parameter_study.csv` | Peak reflectance and R >= 0.5 width for 2-16 periods on a 400-3000 nm sweep |
 | `outputs/temperature_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods between 20 and 80 C |
 | `outputs/strain_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods at 0 and 1000 microstrain |
+| `outputs/tolerance_study.csv` | Monte Carlo thickness-error yield for 0, 2, 5 and 10 nm per-layer sigma |
 | `outputs/benchmark.json` | Median C++ kernel time over 5 runs for 4 period counts x 3 sweep sizes |
 | `outputs/summary.md` | Human-readable summary of the validation, period study, and throughput |
 | `outputs/sme_needs_summary.json` | Aggregate SME survey findings (n=24) used in the alignment assessment; no respondent-level data |
@@ -68,6 +69,11 @@ before quoting a sensitivity to an SME.
 Geometric strain shifts the 15-period stop-band centre by `1.63 nm` at
 `1000 microstrain`, i.e. `1.63 pm/microstrain`. Photoelastic index change is
 not modelled yet, so this is a geometric lower-order estimate.
+
+Fabrication tolerance is tighter than it looks: with a 2 nm per-layer thickness
+sigma and a 2 nm centre target, the simulated yield is `31%`; at 5 nm sigma it
+falls to `8%`, and 17 of 100 samples lose a detectable stop band. These are
+idealised Gaussian thickness errors, not a real process distribution.
 
 ## Limits
 

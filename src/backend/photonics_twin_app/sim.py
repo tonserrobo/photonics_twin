@@ -63,15 +63,18 @@ def _stop_band_edges(wavelengths, reflectance, centre_nm, level=0.5):
     return crossing(i, i + 1), crossing(j, j - 1)
 
 
-def _edges_at(high, low, params, temperature_c, strain_microstrain):
+def _edges_at(high, low, params, temperature_c, strain_microstrain,
+              scales=None, n_points=4001):
     g = pc.BraggGrating(high, low, params.centre_nm, params.periods)
     g.set_temperature_c(temperature_c)
     g.set_strain_microstrain(strain_microstrain)
+    if scales is not None:
+        g.set_thickness_scales(scales)
     # Wider than the stop band so both edges are inside the sweep. At 2500 nm
     # the high edge can exceed the 3000 nm API cap, which returns None.
     start = max(200.0, params.centre_nm * 0.60)
     stop = min(3000.0, params.centre_nm * 1.40)
-    wl = np.linspace(start, stop, 4001, dtype=np.float64)
+    wl = np.linspace(start, stop, n_points, dtype=np.float64)
     return _stop_band_edges(wl, g.reflectance(wl), params.centre_nm)
 
 
@@ -155,3 +158,73 @@ def run_bragg_sweep(params: BraggParams, sweep: Sweep) -> dict:
         "stack":          stack,
         "meta":           meta,
     }
+
+
+def run_tolerance(params, sweep, n_samples, thickness_sigma_nm,
+                  tolerance_nm, seed):
+    """Monte Carlo over per-layer thickness errors, seeded for reproducibility."""
+    high = _material(params.material_high)
+    low = _material(params.material_low)
+    nominal = run_bragg_sweep(params, sweep)
+    thicknesses = np.asarray(
+        [layer["thickness_nm"] for layer in nominal["stack"]], dtype=float)
+    nominal_centre = nominal["meta"]["stop_band_centre_nm"]
+
+    rng = np.random.default_rng(seed)
+    centres = []
+    t0 = time.perf_counter()
+    for _ in range(n_samples):
+        if thickness_sigma_nm > 0.0:
+            relative_sigma = thickness_sigma_nm / thicknesses
+            scales = np.clip(1.0 + rng.normal(0.0, relative_sigma), 0.5, 1.5)
+        else:
+            scales = np.ones_like(thicknesses)
+        edges = _edges_at(
+            high, low, params, params.temperature_c, params.strain_microstrain,
+            scales=scales.tolist(), n_points=2001)
+        if edges is not None:
+            centres.append((edges[0] + edges[1]) / 2.0)
+    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+
+    centres = np.asarray(centres, dtype=float)
+    n_valid = int(centres.size)
+    failed = n_samples - n_valid
+    if nominal_centre is None or n_valid == 0:
+        stats = {
+            "n_samples": n_samples,
+            "valid_samples": n_valid,
+            "failed_samples": failed,
+            "thickness_sigma_nm": thickness_sigma_nm,
+            "tolerance_nm": tolerance_nm,
+            "seed": seed,
+            "nominal_centre_nm": nominal_centre,
+            "yield": None,
+            "compute_ms": round(elapsed_ms, 3),
+        }
+    else:
+        shifts = centres - nominal_centre
+        within = int(np.sum(np.abs(shifts) <= tolerance_nm))
+        stats = {
+            "n_samples": n_samples,
+            "valid_samples": n_valid,
+            "failed_samples": failed,
+            "thickness_sigma_nm": thickness_sigma_nm,
+            "tolerance_nm": tolerance_nm,
+            "seed": seed,
+            "nominal_centre_nm": round(float(nominal_centre), 4),
+            "mean_centre_nm": round(float(centres.mean()), 4),
+            "std_centre_nm": round(float(centres.std(ddof=1)), 4)
+            if centres.size > 1 else 0.0,
+            "p05_centre_nm": round(float(np.percentile(centres, 5)), 4),
+            "p95_centre_nm": round(float(np.percentile(centres, 95)), 4),
+            "min_centre_nm": round(float(centres.min()), 4),
+            "max_centre_nm": round(float(centres.max()), 4),
+            "yield": round(within / n_samples, 4),
+            "yield_definition": (
+                "fraction of all samples within +/- tolerance_nm of nominal; "
+                "samples with no detectable stop band count as failures"
+            ),
+            "compute_ms": round(elapsed_ms, 3),
+        }
+    nominal["meta"]["tolerance"] = stats
+    return nominal

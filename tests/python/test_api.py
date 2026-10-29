@@ -197,3 +197,54 @@ def test_ws_sim_validation_error(app):
         msg = ws.receive_json()
         assert msg["type"] == "error"
         assert "code" in msg and "message" in msg
+
+async def test_tolerance_zero_sigma_is_deterministic(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15},
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+        "n_samples": 20,
+        "thickness_sigma_nm": 0.0,
+        "tolerance_nm": 2.0,
+        "seed": 7,
+    }
+    r = await client.post("/simulate/tmm/tolerance", json=body)
+    assert r.status_code == 200
+    stats = r.json()["meta"]["tolerance"]
+    assert stats["valid_samples"] == 20
+    assert stats["yield"] == 1.0
+    assert stats["std_centre_nm"] == 0.0
+
+async def test_tolerance_smoke(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15},
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+        "n_samples": 30,
+        "thickness_sigma_nm": 5.0,
+        "tolerance_nm": 2.0,
+        "seed": 7,
+    }
+    r = await client.post("/simulate/tmm/tolerance", json=body)
+    assert r.status_code == 200
+    stats = r.json()["meta"]["tolerance"]
+    assert stats["valid_samples"] + stats["failed_samples"] == 30
+    assert stats["valid_samples"] >= 20
+    assert 0.0 <= stats["yield"] <= 1.0
+    assert stats["yield"] <= stats["valid_samples"] / 30
+    assert stats["p05_centre_nm"] <= stats["p95_centre_nm"]
+    assert abs(stats["mean_centre_nm"] - stats["nominal_centre_nm"]) < 20.0
+
+async def test_tolerance_rejects_too_many_samples(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15},
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+        "n_samples": 500,
+    }
+    r = await client.post("/simulate/tmm/tolerance", json=body)
+    assert r.status_code == 422
+    assert "n_samples" in r.text

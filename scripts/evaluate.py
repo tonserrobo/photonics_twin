@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from photonics_twin_app.schemas import BraggParams, Sweep
-from photonics_twin_app.sim import run_bragg_sweep
+from photonics_twin_app.sim import run_bragg_sweep, run_tolerance
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "evaluation" / "outputs"
@@ -214,6 +214,30 @@ def strain_study():
     return rows
 
 
+def tolerance_study():
+    rows = []
+    params = BraggParams(material_high="Si", material_low="SiO2",
+                         centre_nm=1550.0, periods=15)
+    sweep = Sweep(start_nm=1400.0, stop_nm=1700.0, n_points=101)
+    for sigma_nm in (0.0, 2.0, 5.0, 10.0):
+        out = run_tolerance(params, sweep, 100, sigma_nm, 2.0, 12345)
+        stats = out["meta"]["tolerance"]
+        if stats["yield"] is None:
+            raise RuntimeError(f"tolerance study produced no yield at sigma {sigma_nm}")
+        if sigma_nm == 0.0 and stats["yield"] != 1.0:
+            raise RuntimeError("zero-thickness-error tolerance run must have yield 1.0")
+        rows.append({
+            "thickness_sigma_nm": sigma_nm,
+            "n_samples": stats["n_samples"],
+            "valid_samples": stats["valid_samples"],
+            "failed_samples": stats["failed_samples"],
+            "yield": stats["yield"],
+            "mean_centre_nm": stats.get("mean_centre_nm"),
+            "std_centre_nm": stats.get("std_centre_nm"),
+        })
+    return rows
+
+
 def benchmark(repeats=5):
     cases = []
     for periods in (5, 10, 15, 16):
@@ -255,7 +279,7 @@ def write_parameter_csv(path, rows):
         writer.writerows(rows)
 
 
-def summary(validation, matrix, study, temperature, strain, bench):
+def summary(validation, matrix, study, temperature, strain, tolerance, bench):
     m = validation["metrics"]
     low_periods = study[0]
     high_periods = study[-1]
@@ -336,6 +360,19 @@ def summary(validation, matrix, study, temperature, strain, bench):
         "",
         "Full study is in `strain_sensitivity.csv`. This is geometric strain "
         "only; photoelastic index change is not modelled yet.",
+        "",        "## Fabrication tolerance (100 samples, 2 nm target)",
+        "",
+        "| thickness sigma (nm) | yield | valid | failed | mean centre (nm) | std (nm) |",
+        "|---:|---:|---:|---:|---:|---:|",
+        *[
+            f"| {row['thickness_sigma_nm']:.1f} | {row['yield']:.3f} | "
+            f"{row['valid_samples']} | {row['failed_samples']} | "
+            f"{row['mean_centre_nm']:.2f} | {row['std_centre_nm']:.2f} |"
+            for row in tolerance
+        ],
+        "",
+        "Yield counts a sample as failed if it has no detectable stop band or if "
+        "its centre moves more than 2 nm. Full study is in `tolerance_study.csv`.",
         "",
         "## Throughput",
         "",
@@ -357,6 +394,7 @@ def main():
     matrix = validation_matrix()
     temperature = temperature_study()
     strain = strain_study()
+    tolerance = tolerance_study()
 
     if args.check:
         print(f"Validation within tolerance: {validation['within_tolerance']}")
@@ -378,6 +416,7 @@ def main():
     write_parameter_csv(OUT / "parameter_study.csv", study)
     write_parameter_csv(OUT / "temperature_sensitivity.csv", temperature)
     write_parameter_csv(OUT / "strain_sensitivity.csv", strain)
+    write_parameter_csv(OUT / "tolerance_study.csv", tolerance)
 
     bench = benchmark()
     (OUT / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n")
@@ -386,7 +425,7 @@ def main():
     write_sweep_csv(OUT / "reflectance_default_sweep.csv", default_sweep)
 
     (OUT / "summary.md").write_text(
-        summary(validation, matrix, study, temperature, strain, bench))
+        summary(validation, matrix, study, temperature, strain, tolerance, bench))
     print(f"Wrote evaluation artifacts to {OUT}")
     print(f"Validation within tolerance: {validation['within_tolerance']}")
     print(f"Matrix max abs error: {matrix['max_abs_error']:.2e}")

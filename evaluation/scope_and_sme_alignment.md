@@ -336,8 +336,8 @@ evaluation, export a scenario, and run the Docker stack without help.
 - [x] Report `nm/K` and `pm/microstrain` sensitivity and the stop-band centre
   shift.
 - [ ] Report `nm/RIU`, detection limit, and a full uncertainty budget.
-- [ ] Add fabrication tolerance (thickness/index variation) and Monte Carlo
-  yield.
+- [x] Add seeded Monte Carlo thickness tolerance and yield.
+- [ ] Add refractive-index variation and process-specific distributions.
 - [x] Add CSV/JSON export.
 - [ ] Add a batch sweep endpoint.
 - [x] Add Telecom and sensing-edge UI presets.

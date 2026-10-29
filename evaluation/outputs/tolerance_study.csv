@@ -1,0 +1,5 @@
+thickness_sigma_nm,n_samples,valid_samples,failed_samples,yield,mean_centre_nm,std_centre_nm
+0.0,100,100,0,1.0,1674.2502,0.0
+2.0,100,100,0,0.31,1673.8735,5.2207
+5.0,100,83,17,0.08,1669.577,12.3664
+10.0,100,55,45,0.03,1653.7082,28.3093

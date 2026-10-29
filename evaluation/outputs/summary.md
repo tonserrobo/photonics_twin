@@ -51,6 +51,17 @@ Full study is in `temperature_sensitivity.csv`. The model is linear around 20 C 
 
 Full study is in `strain_sensitivity.csv`. This is geometric strain only; photoelastic index change is not modelled yet.
 
+## Fabrication tolerance (100 samples, 2 nm target)
+
+| thickness sigma (nm) | yield | valid | failed | mean centre (nm) | std (nm) |
+|---:|---:|---:|---:|---:|---:|
+| 0.0 | 1.000 | 100 | 0 | 1674.25 | 0.00 |
+| 2.0 | 0.310 | 100 | 0 | 1673.87 | 5.22 |
+| 5.0 | 0.080 | 83 | 17 | 1669.58 | 12.37 |
+| 10.0 | 0.030 | 55 | 45 | 1653.71 | 28.31 |
+
+Yield counts a sample as failed if it has no detectable stop band or if its centre moves more than 2 nm. Full study is in `tolerance_study.csv`.
+
 ## Throughput
 
-Highest measured throughput: 2741.1 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.
+Highest measured throughput: 2968.8 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.

@@ -29,3 +29,12 @@ class SimulateResponse(BaseModel):
     reflectance:    list[float]
     stack: list[LayerOut]
     meta:  dict
+
+class ToleranceRequest(BaseModel):
+    component: str
+    params: BraggParams
+    sweep: Sweep
+    n_samples: conint(ge=10, le=200) = 50
+    thickness_sigma_nm: confloat(ge=0.0, le=50.0) = 5.0
+    tolerance_nm: confloat(ge=0.1, le=50.0) = 2.0
+    seed: conint(ge=0, le=4294967295) = 12345
