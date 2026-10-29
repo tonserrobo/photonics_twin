@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSimulation } from "./hooks/useSimulation.js";
 import ParameterPanel from "./components/ParameterPanel.jsx";
 import ScenarioControls from "./components/ScenarioControls.jsx";
+import TolerancePanel from "./components/TolerancePanel.jsx";
 import SpectralPlot from "./components/SpectralPlot.jsx";
 import LayerStackView from "./components/LayerStackView.jsx";
 
@@ -43,6 +44,7 @@ export default function App() {
               ` | strain sensitivity ${result.meta.strain_sensitivity_pm_per_microstrain.toFixed(2)} pm/ue`}
           </div>
         )}
+        <TolerancePanel params={params} sweep={sweep} />
         <SpectralPlot wavelengths={result?.wavelengths_nm}
                       reflectance={result?.reflectance} />
         <LayerStackView stack={result?.stack} />
