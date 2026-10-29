@@ -9,6 +9,14 @@ def test_material_name(si_coeffs):
     m = pc.Material("Si", pc.SellmeierCoeffs(*si_coeffs))
     assert m.name == "Si"
 
+def test_material_temperature_shift(si_coeffs):
+    m = pc.Material("Si", pc.SellmeierCoeffs(*si_coeffs),
+                    pc.ThermalCoeffs(1.86e-4, 2.6e-6))
+    assert abs(m.n(1550.0, 20.0) - m.n(1550.0)) < 1e-12
+    assert m.n(1550.0, 60.0) > m.n(1550.0, 20.0)
+    assert abs(m.dn_dT - 1.86e-4) < 1e-12
+    assert abs(m.cte - 2.6e-6) < 1e-12
+
 def test_bragg_reflectance_roundtrip(si_coeffs, sio2_coeffs):
     si  = pc.Material("Si",   pc.SellmeierCoeffs(*si_coeffs))
     sio = pc.Material("SiO2", pc.SellmeierCoeffs(*sio2_coeffs))
@@ -38,6 +46,31 @@ def test_bragg_stack_layer_count(si_coeffs, sio2_coeffs):
     assert layers[1]["material"] == "SiO2"
     assert layers[0]["thickness_nm"] > 0
     assert "n_at_centre" in layers[0]
+
+def _low_stop_band_edge(wavelengths, reflectance):
+    for i in range(1, len(reflectance)):
+        if reflectance[i - 1] < 0.5 <= reflectance[i]:
+            return float(
+                wavelengths[i - 1]
+                + (0.5 - reflectance[i - 1]) * (wavelengths[i] - wavelengths[i - 1])
+                / (reflectance[i] - reflectance[i - 1])
+            )
+    raise AssertionError("no 0.5 crossing found")
+
+def test_bragg_temperature_redshift(si_coeffs, sio2_coeffs):
+    si = pc.Material("Si", pc.SellmeierCoeffs(*si_coeffs),
+                     pc.ThermalCoeffs(1.86e-4, 2.6e-6))
+    sio = pc.Material("SiO2", pc.SellmeierCoeffs(*sio2_coeffs),
+                      pc.ThermalCoeffs(1.0e-5, 5.5e-7))
+    g = pc.BraggGrating(si, sio, 1550.0, 15)
+
+    wl = np.linspace(1150.0, 1300.0, 1501, dtype=np.float64)
+    edge_20 = _low_stop_band_edge(wl, g.reflectance(wl))
+    g.set_temperature_c(80.0)
+    edge_80 = _low_stop_band_edge(wl, g.reflectance(wl))
+
+    assert edge_80 > edge_20 + 1.0
+    assert edge_80 < edge_20 + 10.0
 
 import json
 from pathlib import Path

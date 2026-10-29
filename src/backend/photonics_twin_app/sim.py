@@ -30,9 +30,13 @@ MATERIALS_DIR = DATA_DIR / "materials"
 def _material(name: str) -> pc.Material:
     path = MATERIALS_DIR / f"sellmeier_{name.lower()}.json"
     with open(path) as fh:
-        c = json.load(fh)["coeffs"]
+        data = json.load(fh)
+    c = data["coeffs"]
+    thermal = data.get("thermal", {})
     return pc.Material(name, pc.SellmeierCoeffs(
         c["B1"], c["B2"], c["B3"], c["C1"], c["C2"], c["C3"]
+    ), pc.ThermalCoeffs(
+        thermal.get("dn_dT_per_K", 0.0), thermal.get("cte_per_K", 0.0)
     ))
 
 def run_bragg_sweep(params: BraggParams, sweep: Sweep) -> dict:

@@ -11,9 +11,11 @@ public:
 
     void set_centre_nm(real_t v);
     void set_periods(std::size_t v);
+    void set_temperature_c(real_t v);
 
     real_t      centre_nm() const { return centre_nm_; }
     std::size_t periods()   const { return periods_; }
+    real_t      temperature_c() const { return temperature_c_; }
 
     const LayerStack& stack() const { return cached_stack_; }
 
@@ -28,6 +30,7 @@ private:
     Material low_;
     real_t   centre_nm_;
     std::size_t periods_;
+    real_t   temperature_c_ = T_REF_C;
     LayerStack cached_stack_;
 };
 

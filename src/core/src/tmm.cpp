@@ -39,7 +39,8 @@ void tmm_sweep(const LayerStack& stack,
 
         for (std::size_t li = 0; li < stack.size(); ++li) {
             const auto& layer = stack.at(li);
-            const complex_t n{static_cast<double>(layer.material->n(lambda)), 0.0};
+            const complex_t n{static_cast<double>(
+                layer.material->n(lambda, stack.temperature_c())), 0.0};
             const real_t delta = real_t{2.0} * PI * static_cast<double>(n.real())
                                  * layer.thickness_nm / lambda;
             const complex_t cos_d{std::cos(static_cast<double>(delta)), 0.0};

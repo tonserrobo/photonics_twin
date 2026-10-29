@@ -16,5 +16,6 @@ namespace photonics {
 #endif
 
 inline constexpr std::size_t MAX_LAYERS = 32;
+inline constexpr real_t T_REF_C = real_t{20.0};
 
 }  // namespace photonics

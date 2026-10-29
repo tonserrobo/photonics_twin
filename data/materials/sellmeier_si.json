@@ -1,8 +1,13 @@
 {
   "name": "Si",
-  "source": "Edwards/Salzberg-Villa, room temp, valid 1.36-11 μm",
+  "source": "Edwards/Salzberg-Villa, room temp, valid 1.36-11 um",
   "coeffs": {
     "B1": 10.6684293, "B2": 0.003043475, "B3": 1.54133408,
     "C1": 0.090912191, "C2": 1.287460152, "C3": 1218816.0
+  },
+  "thermal": {
+    "dn_dT_per_K": 1.86e-4,
+    "cte_per_K": 2.6e-6,
+    "source": "Typical room-temperature values near 1550 nm; replace with measured data for quantitative sensor design."
   }
 }

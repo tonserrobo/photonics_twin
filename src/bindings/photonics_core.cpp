@@ -6,13 +6,15 @@
 #include "photonics/tmm.hpp"
 
 namespace py = pybind11;
+using photonics::real_t;
 using photonics::Material;
 using photonics::SellmeierCoeffs;
+using photonics::ThermalCoeffs;
 using photonics::BraggGrating;
 using photonics::LayerStack;
 
 PYBIND11_MODULE(photonics_core, m) {
-    m.doc() = "SPEAR Photonics Digital Twin — C++ core (Bragg slice)";
+    m.doc() = "SPEAR Photonics Digital Twin - C++ core (Bragg slice)";
     m.attr("__version__") = "0.1.0";
 
     py::class_<SellmeierCoeffs>(m, "SellmeierCoeffs")
@@ -20,10 +22,21 @@ PYBIND11_MODULE(photonics_core, m) {
              py::arg("B1"), py::arg("B2"), py::arg("B3"),
              py::arg("C1"), py::arg("C2"), py::arg("C3"));
 
+    py::class_<ThermalCoeffs>(m, "ThermalCoeffs")
+        .def(py::init<double, double>(),
+             py::arg("dn_dT_per_K"), py::arg("cte_per_K"));
+
     py::class_<Material>(m, "Material")
         .def(py::init<std::string, SellmeierCoeffs>(),
              py::arg("name"), py::arg("coeffs"))
-        .def("n", &Material::n, py::arg("wavelength_nm"))
+        .def(py::init<std::string, SellmeierCoeffs, ThermalCoeffs>(),
+             py::arg("name"), py::arg("coeffs"), py::arg("thermal"))
+        .def("n", py::overload_cast<real_t>(&Material::n, py::const_),
+             py::arg("wavelength_nm"))
+        .def("n", py::overload_cast<real_t, real_t>(&Material::n, py::const_),
+             py::arg("wavelength_nm"), py::arg("temperature_c"))
+        .def_property_readonly("dn_dT", &Material::dn_dT)
+        .def_property_readonly("cte", &Material::cte)
         .def_property_readonly("name", &Material::name);
 
     py::class_<BraggGrating>(m, "BraggGrating")
@@ -32,8 +45,10 @@ PYBIND11_MODULE(photonics_core, m) {
              py::arg("centre_nm"), py::arg("periods"))
         .def("set_centre_nm", &BraggGrating::set_centre_nm)
         .def("set_periods",   &BraggGrating::set_periods)
+        .def("set_temperature_c", &BraggGrating::set_temperature_c)
         .def_property_readonly("centre_nm", &BraggGrating::centre_nm)
         .def_property_readonly("periods",   &BraggGrating::periods)
+        .def_property_readonly("temperature_c", &BraggGrating::temperature_c)
         .def("reflectance",
              [](const BraggGrating& self, py::array_t<double, py::array::c_style> wl) {
                  auto buf = wl.request();
@@ -55,7 +70,8 @@ PYBIND11_MODULE(photonics_core, m) {
                      d["index"]        = static_cast<int>(i);
                      d["material"]     = L.material->name();
                      d["thickness_nm"] = static_cast<double>(L.thickness_nm);
-                     d["n_at_centre"]  = static_cast<double>(L.material->n(centre));
+                     d["n_at_centre"]  = static_cast<double>(
+                         L.material->n(centre, self.temperature_c()));
                      out.append(d);
                  }
                  return out;

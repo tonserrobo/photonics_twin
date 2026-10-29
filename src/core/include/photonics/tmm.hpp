@@ -17,8 +17,12 @@ public:
     std::size_t size() const { return layers_.size(); }
     const Layer& at(std::size_t i) const { return layers_.at(i); }
 
+    void set_temperature_c(real_t v) { temperature_c_ = v; }
+    real_t temperature_c() const { return temperature_c_; }
+
 private:
     std::vector<Layer> layers_;
+    real_t temperature_c_ = T_REF_C;
 };
 
 // Free function — the HLS synthesis target.

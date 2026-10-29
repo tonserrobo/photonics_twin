@@ -14,11 +14,22 @@ BraggGrating::BraggGrating(Material high, Material low,
 
 void BraggGrating::set_centre_nm(real_t v) { centre_nm_ = v; rebuild_stack_(); }
 void BraggGrating::set_periods(std::size_t v) { periods_ = v; rebuild_stack_(); }
+void BraggGrating::set_temperature_c(real_t v) {
+    temperature_c_ = v;
+    rebuild_stack_();
+}
 
 void BraggGrating::rebuild_stack_() {
     cached_stack_ = LayerStack{};
-    const real_t t_h = centre_nm_ / (real_t{4.0} * high_.n(centre_nm_));
-    const real_t t_l = centre_nm_ / (real_t{4.0} * low_.n(centre_nm_));
+    cached_stack_.set_temperature_c(temperature_c_);
+
+    // Thicknesses are fixed at the reference temperature and then expanded
+    // thermally. Recomputing them from n(T) would cancel the index shift.
+    const real_t delta_t = temperature_c_ - T_REF_C;
+    const real_t t_h_ref = centre_nm_ / (real_t{4.0} * high_.n(centre_nm_, T_REF_C));
+    const real_t t_l_ref = centre_nm_ / (real_t{4.0} * low_.n(centre_nm_, T_REF_C));
+    const real_t t_h = t_h_ref * (real_t{1.0} + high_.cte() * delta_t);
+    const real_t t_l = t_l_ref * (real_t{1.0} + low_.cte() * delta_t);
     for (std::size_t i = 0; i < periods_; ++i) {
         cached_stack_.add_layer(t_h, high_);
         cached_stack_.add_layer(t_l, low_);
