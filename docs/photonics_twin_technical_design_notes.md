@@ -377,7 +377,8 @@ FPGA implementation or a calibrated digital twin.
 
 An October 2026 Vitis HLS 2023.2 spike lives in `src/hdl/hls/`. It matched a
 double-precision reference to `1.37e-7` and hit `II=1` at about `137 MHz` for a
-fixed 2-period stack, but used `87%` of DSPs and `81%` of LUTs on a Zynq-7020.
+fixed 2-period stack, but used `87%` of DSPs and `81%` of LUTs on a Zynq-7020;
+a sequential `II=4` variant lowered DSP to `57%` but raised LUT to `90%`.
 The numerical gate passes; the resource-scalability gate fails for the 32-layer
 cap. Records are in `src/hdl/hls/README.md` and
 `evaluation/outputs/fpga_spike.json`. Do not claim FPGA capability until the

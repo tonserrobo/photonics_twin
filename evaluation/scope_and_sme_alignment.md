@@ -164,10 +164,12 @@ are **design targets, not measured results**.
 matched double precision to `1.37e-7`, and the kernel achieved `II=1` at an
 estimated `136.99 MHz`. Resource use was `192/220 DSP (87%)`, `43,317/53,200`
 LUT (81%), `42,548/106,400` FF (39%), and 8 BRAM for a **2-period** stack.
-That is a numerical feasibility pass but a scalability failure on this part;
-it cannot reach the 32-layer cap without a different trig/multiplier strategy
-or a larger device. See `evaluation/outputs/fpga_spike.json` and
-`src/hdl/hls/README.md`.
+A sequential `II=4` variant lowered DSP use to `127/220 (57%)` but raised LUT
+use to `48,156/53,200 (90%)`, so relaxing the unroll trades one resource for
+another rather than solving scalability. This is a numerical feasibility pass
+but a resource-scalability failure on this part; it cannot reach the 32-layer
+cap without a different trig/multiplier strategy or a larger device. See
+`evaluation/outputs/fpga_spike.json` and `src/hdl/hls/README.md`.
 
 ### 4.2 Is the TMM a good HLS target?
 

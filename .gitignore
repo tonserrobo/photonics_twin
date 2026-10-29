@@ -37,5 +37,6 @@ Thumbs.db
 
 # HLS / Vitis
 src/hdl/hls/tmm_hls/
+src/hdl/hls/tmm_hls_seq/
 vitis_hls.log
 *.hls_prj

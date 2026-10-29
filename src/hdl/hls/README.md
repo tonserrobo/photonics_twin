@@ -11,43 +11,45 @@ From this directory:
 
 ```powershell
 & "C:\Xilinx\Vitis_HLS\2023.2\bin\vitis_hls.bat" -f run_hls.tcl
+& "C:\Xilinx\Vitis_HLS\2023.2\bin\vitis_hls.bat" -f run_hls_seq.tcl
 ```
 
-The script C-simulates against a double-precision reference, then synthesizes
-for `xc7z020clg400-1` at a 10 ns clock. Build output is written under
-`tmm_hls/` and is git-ignored.
+Both scripts C-simulate against a double-precision reference, then synthesize
+for `xc7z020clg400-1` at a 10 ns clock. The first fully unrolls the layer chain
+(`II=1`); the second keeps it sequential (`II=4`). Build output is written under
+`tmm_hls/` and `tmm_hls_seq/` and is git-ignored.
 
-## Result (2026-10-29, Vitis HLS 2023.2)
+## Results (2026-10-29, Vitis HLS 2023.2)
 
-| Check | Result |
-|---|---|
-| C-simulation max absolute error vs double | `1.373e-7` (501 points) |
-| Initiation interval | `1` |
-| Iteration latency | `177` cycles |
-| Estimated Fmax | `136.99 MHz` at 10 ns target |
-| DSP | `192 / 220` (`87%`) |
-| LUT | `43,317 / 53,200` (`81%`) |
-| FF | `42,548 / 106,400` (`39%`) |
-| BRAM | `8 / 280` (`2%`) |
+| Check | Unrolled, II=1 | Sequential, II=4 |
+|---|---:|---:|
+| C-simulation max absolute error vs double | `1.373e-7` | `1.373e-7` |
+| Iteration latency | `177` cycles | `190` cycles |
+| Estimated Fmax | `136.99 MHz` | `136.99 MHz` |
+| DSP | `192 / 220` (`87%`) | `127 / 220` (`57%`) |
+| LUT | `43,317 / 53,200` (`81%`) | `48,156 / 53,200` (`90%`) |
+| FF | `42,548 / 106,400` (`39%`) | `39,694 / 106,400` (`37%`) |
+| BRAM | `8 / 280` (`2%`) | `8 / 280` (`2%`) |
 
 ## Interpretation
 
 - **G1 numerical equivalence: pass.** Fixed-point TMM can match double
   precision to well below the `1e-3` gate.
-- **G2 timing: pass.** `II=1` was achieved.
-- **G2 resource scalability: fail on Zynq-7020.** A 2-period stack consumes
-  almost all DSPs and most LUTs, so it cannot scale to the 32-layer cap on this
-  part.
+- **G2 timing: pass for II=1.** The unrolled variant achieved `II=1`; the
+  sequential variant reached `II=4`.
+- **G2 resource scalability: fail on Zynq-7020.** The unrolled 2-period stack
+  uses `87%` DSP and `81%` LUT; relaxing to `II=4` lowers DSP to `57%` but
+  raises LUT to `90%`. Neither leaves room to scale to the 32-layer cap.
 - **Do not claim FPGA capability.** The spike is evidence for the decision, not
   a product result.
 
-The dominant costs are the float `sin/cos` implementation and the fully
-unrolled matrix chain (31 multipliers and two dividers in the report). Next
-options, in order of likely value:
+The float `sin/cos` implementation and fixed-point operator width dominate
+resources. Relaxing the unroll trades DSP for LUT rather than solving the
+problem. Next options, in order of likely value:
 
 1. Replace float trig with fixed-point CORDIC or a small LUT.
-2. Share/time-multiplex complex multipliers instead of fully unrolling.
-3. Reduce intermediate precision or use a sequential matrix chain.
+2. Reduce precision where the error budget allows.
+3. Try a time-multiplexed state-machine architecture with an explicit II target.
 4. Re-target a larger UltraScale+ device if batch throughput justifies it.
 5. Compare against a GPU or surrogate implementation before committing to FPGA.
 

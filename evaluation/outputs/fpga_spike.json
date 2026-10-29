@@ -7,9 +7,6 @@
   "scope": "numerical and synthesis spike, not a production kernel",
   "clock_ns": 10.0,
   "estimated_fmax_mhz": 136.99,
-  "estimated_clock_ns": 7.3,
-  "initiation_interval": 1,
-  "iteration_latency_cycles": 177,
   "csim": {
     "points": 501,
     "max_abs_error_vs_double": 1.373e-07,
@@ -17,16 +14,40 @@
     "max_reflectance": 0.887867,
     "result": "pass"
   },
-  "resources": {
-    "BRAM_18K": 8,
-    "DSP": 192,
-    "FF": 42548,
-    "LUT": 43317,
-    "DSP_percent": 87,
-    "FF_percent": 39,
-    "LUT_percent": 81,
-    "BRAM_percent": 2
-  },
+  "variants": [
+    {
+      "name": "unrolled_ii1",
+      "description": "full layer unroll, outer loop II=1",
+      "initiation_interval": 1,
+      "iteration_latency_cycles": 177,
+      "resources": {
+        "BRAM_18K": 8,
+        "DSP": 192,
+        "FF": 42548,
+        "LUT": 43317,
+        "DSP_percent": 87,
+        "FF_percent": 39,
+        "LUT_percent": 81,
+        "BRAM_percent": 2
+      }
+    },
+    {
+      "name": "sequential_ii4",
+      "description": "layer chain not unrolled, outer loop II=4",
+      "initiation_interval": 4,
+      "iteration_latency_cycles": 190,
+      "resources": {
+        "BRAM_18K": 8,
+        "DSP": 127,
+        "FF": 39694,
+        "LUT": 48156,
+        "DSP_percent": 57,
+        "FF_percent": 37,
+        "LUT_percent": 90,
+        "BRAM_percent": 2
+      }
+    }
+  ],
   "gates": {
     "G1_numerical_equivalence": "pass",
     "G2_timing": "pass",
@@ -35,13 +56,16 @@
     "G4_decision": "do_not_claim_fpga_capability; optimize or change target"
   },
   "notes": [
-    "The float sin/cos implementation and fully unrolled matrix chain dominate resources.",
-    "192 DSPs for 2 periods leaves no room to scale to 32 layers on this part.",
-    "Next options: fixed-point CORDIC/LUT trig, shared/time-multiplexed multipliers, reduced unroll, a larger UltraScale+ part, or a GPU/surrogate path.",
+    "The float sin/cos implementation and fixed-point operators dominate resources.",
+    "II=1 uses 87% DSP and 81% LUT; relaxing to II=4 lowers DSP to 57% but raises LUT to 90%.",
+    "Neither variant leaves room to scale to 32 layers on this part.",
+    "Next options: fixed-point CORDIC/LUT trig, shared/time-multiplexed multipliers, reduced precision, a larger UltraScale+ part, or a GPU/surrogate path.",
     "CPU remains the correct engine for interactive SME use; the FPGA case is batch throughput/power or embedded deployment."
   ],
   "report_paths": {
-    "csynth": "src/hdl/hls/tmm_hls/solution1/syn/report/tmm_sweep_fixed_csynth.rpt",
-    "csim": "src/hdl/hls/tmm_hls/solution1/csim/report/tmm_sweep_fixed_csim.log"
+    "unrolled_csynth": "src/hdl/hls/tmm_hls/solution1/syn/report/tmm_sweep_fixed_csynth.rpt",
+    "unrolled_csim": "src/hdl/hls/tmm_hls/solution1/csim/report/tmm_sweep_fixed_csim.log",
+    "sequential_csynth": "src/hdl/hls/tmm_hls_seq/solution1/syn/report/tmm_sweep_fixed_csynth.rpt",
+    "sequential_csim": "src/hdl/hls/tmm_hls_seq/solution1/csim/report/tmm_sweep_fixed_csim.log"
   }
 }

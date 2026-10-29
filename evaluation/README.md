@@ -85,7 +85,8 @@ order-of-magnitude consistent with NIST silicon waveguide thermometers
 
 The HLS spike matched double precision to `1.37e-7` and hit `II=1` at about
 `137 MHz`, but a **2-period** stack used `87%` of DSPs and `81%` of LUTs on a
-Zynq-7020. That is a numerical pass and a scalability fail, not an FPGA
+Zynq-7020. A sequential `II=4` variant lowered DSP use to `57%` but raised LUT
+use to `90%`. That is a numerical pass and a scalability fail, not an FPGA
 capability claim.
 
 ## Limits
