@@ -118,3 +118,18 @@ def test_reference_fixture(si_coeffs, sio2_coeffs):
         f"low edge: simulator {edge_low_meas:.2f} vs Born&Wolf {ref['stop_band_edge_low_nm']:.2f}"
     assert abs(edge_high_meas - ref["stop_band_edge_high_nm"]) < ref["stop_band_edge_tol_nm"], \
         f"high edge: simulator {edge_high_meas:.2f} vs Born&Wolf {ref['stop_band_edge_high_nm']:.2f}"
+
+def test_bragg_strain_redshift(si_coeffs, sio2_coeffs):
+    si = pc.Material("Si", pc.SellmeierCoeffs(*si_coeffs),
+                     pc.ThermalCoeffs(1.86e-4, 2.6e-6))
+    sio = pc.Material("SiO2", pc.SellmeierCoeffs(*sio2_coeffs),
+                      pc.ThermalCoeffs(1.0e-5, 5.5e-7))
+    g = pc.BraggGrating(si, sio, 1550.0, 15)
+
+    wl = np.linspace(1150.0, 1300.0, 1501, dtype=np.float64)
+    edge_0 = _low_stop_band_edge(wl, g.reflectance(wl))
+    g.set_strain_microstrain(1000.0)
+    edge_1000 = _low_stop_band_edge(wl, g.reflectance(wl))
+
+    assert edge_1000 > edge_0 + 0.5
+    assert edge_1000 < edge_0 + 3.0

@@ -113,3 +113,35 @@ TEST(BraggGrating, TemperatureExpandsLayers) {
     EXPECT_GT(t80, t20);
     EXPECT_NEAR((t80 - t20) / t20, 2.6e-6 * 60.0, 1e-9);
 }
+
+TEST(BraggGrating, StrainExpandsLayers) {
+    photonics::BraggGrating g(make_si_thermal(), make_sio2_thermal(), 1550.0, 2);
+    const double t0 = static_cast<double>(g.stack().at(0).thickness_nm);
+    g.set_strain_microstrain(1000.0);
+    const double t1 = static_cast<double>(g.stack().at(0).thickness_nm);
+    EXPECT_GT(t1, t0);
+    EXPECT_NEAR((t1 - t0) / t0, 1.0e-3, 1e-9);
+}
+
+TEST(BraggGrating, StrainRedshiftsStopBand) {
+    photonics::BraggGrating g(make_si_thermal(), make_sio2_thermal(), 1550.0, 15);
+
+    constexpr std::size_t N = 1501;
+    std::vector<double> wl(N), R0(N), R1000(N);
+    const double start = 1150.0, stop = 1300.0;
+    for (std::size_t i = 0; i < N; ++i) {
+        wl[i] = start + (stop - start) * static_cast<double>(i) / (N - 1);
+    }
+
+    g.reflectance(wl.data(), N, R0.data());
+    const double edge0 = low_stop_band_edge(wl, R0);
+
+    g.set_strain_microstrain(1000.0);
+    g.reflectance(wl.data(), N, R1000.data());
+    const double edge1000 = low_stop_band_edge(wl, R1000);
+
+    ASSERT_GT(edge0, 0.0);
+    ASSERT_GT(edge1000, 0.0);
+    EXPECT_GT(edge1000, edge0 + 0.5);
+    EXPECT_LT(edge1000, edge0 + 3.0);
+}

@@ -46,9 +46,11 @@ PYBIND11_MODULE(photonics_core, m) {
         .def("set_centre_nm", &BraggGrating::set_centre_nm)
         .def("set_periods",   &BraggGrating::set_periods)
         .def("set_temperature_c", &BraggGrating::set_temperature_c)
+        .def("set_strain_microstrain", &BraggGrating::set_strain_microstrain)
         .def_property_readonly("centre_nm", &BraggGrating::centre_nm)
         .def_property_readonly("periods",   &BraggGrating::periods)
         .def_property_readonly("temperature_c", &BraggGrating::temperature_c)
+        .def_property_readonly("strain_microstrain", &BraggGrating::strain_microstrain)
         .def("reflectance",
              [](const BraggGrating& self, py::array_t<double, py::array::c_style> wl) {
                  auto buf = wl.request();
