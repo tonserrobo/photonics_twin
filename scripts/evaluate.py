@@ -1,0 +1,309 @@
+"""Reproduce the v0.1 research outputs under evaluation/outputs.
+
+Run from the repo root after installing the package:
+
+    .venv\\Scripts\\python.exe scripts\\evaluate.py
+
+The script uses the installed C++ TMM kernel, not a Python re-implementation.
+Its validation sections assert agreement with the independent Born & Wolf
+fixtures before writing anything, so a broken build fails instead of producing
+misleading research artifacts.
+"""
+import argparse
+import csv
+import json
+import platform
+import statistics
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+
+from photonics_twin_app.schemas import BraggParams, Sweep
+from photonics_twin_app.sim import run_bragg_sweep
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "evaluation" / "outputs"
+REFERENCE = ROOT / "data" / "validation" / "quarterwave_si_sio2_reference.json"
+MATRIX = ROOT / "data" / "validation" / "quarterwave_matrix.json"
+LEVEL = 0.5
+
+
+def run_sweep(start_nm, stop_nm, n_points, centre_nm=1550.0, periods=15):
+    return run_bragg_sweep(
+        BraggParams(material_high="Si", material_low="SiO2",
+                    centre_nm=centre_nm, periods=periods),
+        Sweep(start_nm=start_nm, stop_nm=stop_nm, n_points=n_points),
+    )
+
+
+def stop_band_edges(wavelengths, reflectance, centre_nm=1550.0, level=LEVEL):
+    """Linear-interpolated crossings of the R>=0.5 region containing the design wavelength."""
+    wl = np.asarray(wavelengths, dtype=float)
+    R = np.asarray(reflectance, dtype=float)
+    # Walk outward from the design wavelength, not the global max: a flat-topped
+    # band makes argmax float-noise, and low-period stacks merge sidelobes into
+    # the main high-reflectance region.
+    start = int(np.argmin(np.abs(wl - centre_nm)))
+    i = start
+    while i > 0 and R[i] >= level:
+        i -= 1
+    j = start
+    while j < len(R) - 1 and R[j] >= level:
+        j += 1
+    if not (R[i] < level < R[i + 1] and R[j] < level < R[j - 1]):
+        raise RuntimeError("R>=0.5 region does not cross inside the sweep")
+
+    def crossing(a, b):
+        return float(wl[a] + (level - R[a]) * (wl[b] - wl[a]) / (R[b] - R[a]))
+
+    return crossing(i, i + 1), crossing(j, j - 1)
+
+
+def validation_report():
+    fixture = json.loads(REFERENCE.read_text())
+    params, sweep, ref = fixture["params"], fixture["sweep"], fixture["reference"]
+    out = run_sweep(sweep["start_nm"], sweep["stop_nm"], sweep["n_points"],
+                    params["centre_nm"], params["periods"])
+    wl = np.asarray(out["wavelengths_nm"])
+    R = np.asarray(out["reflectance"])
+    centre_idx = int(np.argmin(np.abs(wl - ref["peak_wavelength_nm"])))
+    edge_low, edge_high = stop_band_edges(wl, R)
+
+    metrics = {
+        "peak_reflectance_sim": float(R[centre_idx]),
+        "peak_reflectance_reference": ref["peak_reflectance"],
+        "peak_reflectance_abs_error": abs(float(R[centre_idx]) - ref["peak_reflectance"]),
+        "peak_reflectance_tol": ref["peak_reflectance_tol"],
+        "stop_band_edge_low_sim_nm": edge_low,
+        "stop_band_edge_low_reference_nm": ref["stop_band_edge_low_nm"],
+        "stop_band_edge_low_abs_error_nm": abs(edge_low - ref["stop_band_edge_low_nm"]),
+        "stop_band_edge_high_sim_nm": edge_high,
+        "stop_band_edge_high_reference_nm": ref["stop_band_edge_high_nm"],
+        "stop_band_edge_high_abs_error_nm": abs(edge_high - ref["stop_band_edge_high_nm"]),
+        "stop_band_edge_tol_nm": ref["stop_band_edge_tol_nm"],
+    }
+    within = (
+        metrics["peak_reflectance_abs_error"] <= metrics["peak_reflectance_tol"]
+        and metrics["stop_band_edge_low_abs_error_nm"] <= metrics["stop_band_edge_tol_nm"]
+        and metrics["stop_band_edge_high_abs_error_nm"] <= metrics["stop_band_edge_tol_nm"]
+    )
+    report = {
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "simulator": "photonics_core C++ TMM",
+        "reference": "Born & Wolf 1.6.5 closed form",
+        "params": params,
+        "sweep": sweep,
+        "metrics": metrics,
+        "within_tolerance": within,
+    }
+    if not within:
+        raise RuntimeError(f"simulator is outside the validation tolerance: {metrics}")
+    return report
+
+
+def validation_matrix():
+    matrix = json.loads(MATRIX.read_text())
+    rows = []
+    for case in matrix["cases"]:
+        params = case["params"]
+        sweep = case["sweep"]
+        reference = case["reference"]
+        out = run_sweep(sweep["start_nm"], sweep["stop_nm"], sweep["n_points"],
+                        params["centre_nm"], params["periods"])
+        wl = np.asarray(out["wavelengths_nm"])
+        R = np.asarray(out["reflectance"])
+        index = int(np.argmin(np.abs(wl - params["centre_nm"])))
+        simulated = float(R[index])
+        error = abs(simulated - reference["peak_reflectance"])
+        if error > reference["tolerance"]:
+            raise RuntimeError(
+                f"validation matrix case {params} error {error:.2e} "
+                f"exceeds {reference['tolerance']:.0e}"
+            )
+        rows.append({
+            "centre_nm": params["centre_nm"],
+            "periods": params["periods"],
+            "peak_reflectance_sim": simulated,
+            "peak_reflectance_reference": reference["peak_reflectance"],
+            "abs_error": error,
+            "tolerance": reference["tolerance"],
+        })
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "simulator": "photonics_core C++ TMM",
+        "reference": "Born & Wolf 1.6.5 closed form",
+        "cases": rows,
+        "max_abs_error": max(row["abs_error"] for row in rows),
+        "within_tolerance": True,
+    }
+
+
+def parameter_study():
+    rows = []
+    for periods in range(2, 17):
+        # Wide sweep: low-period stacks have high sidelobes that merge with the
+        # main R>=0.5 region out to ~2.7 um.
+        out = run_sweep(400.0, 3000.0, 4001, periods=periods)
+        wl = np.asarray(out["wavelengths_nm"])
+        R = np.asarray(out["reflectance"])
+        centre_idx = int(np.argmin(np.abs(wl - 1550.0)))
+        edge_low, edge_high = stop_band_edges(wl, R)
+        rows.append({
+            "periods": periods,
+            "layers": 2 * periods,
+            "peak_reflectance": round(float(R[centre_idx]), 8),
+            "high_reflectance_width_nm": round(edge_high - edge_low, 3),
+            "edge_low_nm": round(edge_low, 3),
+            "edge_high_nm": round(edge_high, 3),
+            "compute_ms": out["meta"]["compute_ms"],
+        })
+    return rows
+
+
+def benchmark(repeats=5):
+    cases = []
+    for periods in (5, 10, 15, 16):
+        for n_points in (101, 501, 2001):
+            samples = [run_sweep(1400.0, 1700.0, n_points, periods=periods)["meta"]["compute_ms"]
+                       for _ in range(repeats)]
+            median_ms = statistics.median(samples)
+            cases.append({
+                "periods": periods,
+                "layers": 2 * periods,
+                "n_points": n_points,
+                "repeats": repeats,
+                "median_ms": round(median_ms, 4),
+                "min_ms": round(min(samples), 4),
+                "max_ms": round(max(samples), 4),
+                "points_per_ms": round(n_points / median_ms, 1) if median_ms else None,
+            })
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "platform": platform.platform(),
+        "python": platform.python_version(),
+        "note": "compute_ms measures the C++ reflectance call only; excludes JSON and material loading.",
+        "cases": cases,
+    }
+
+
+def write_sweep_csv(path, out):
+    with path.open("w", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(["wavelength_nm", "reflectance"])
+        for wavelength, reflectance in zip(out["wavelengths_nm"], out["reflectance"]):
+            writer.writerow([f"{wavelength:.4f}", f"{reflectance:.10f}"])
+
+
+def write_parameter_csv(path, rows):
+    with path.open("w", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def summary(validation, matrix, study, bench):
+    m = validation["metrics"]
+    low_periods = study[0]
+    high_periods = study[-1]
+    fastest = max(bench["cases"], key=lambda c: c["points_per_ms"])
+    lines = [
+        "# Photonics Twin v0.1 - evaluation summary",
+        "",
+        f"Generated by `scripts/evaluate.py`. Simulator: {validation['simulator']}; "
+        f"reference: {validation['reference']}.",
+        "",
+        "## Validation against the analytic oracle",
+        "",
+        "| metric | simulator | reference | abs error | tolerance |",
+        "|---|---:|---:|---:|---:|",
+        f"| peak reflectance | {m['peak_reflectance_sim']:.6f} | "
+        f"{m['peak_reflectance_reference']:.6f} | {m['peak_reflectance_abs_error']:.2e} | "
+        f"{m['peak_reflectance_tol']:.0e} |",
+        f"| low stop-band edge (nm) | {m['stop_band_edge_low_sim_nm']:.2f} | "
+        f"{m['stop_band_edge_low_reference_nm']:.2f} | "
+        f"{m['stop_band_edge_low_abs_error_nm']:.2f} | "
+        f"{m['stop_band_edge_tol_nm']:.0f} |",
+        f"| high stop-band edge (nm) | {m['stop_band_edge_high_sim_nm']:.2f} | "
+        f"{m['stop_band_edge_high_reference_nm']:.2f} | "
+        f"{m['stop_band_edge_high_abs_error_nm']:.2f} | "
+        f"{m['stop_band_edge_tol_nm']:.0f} |",
+        "",
+        f"Within tolerance: **{validation['within_tolerance']}**.",
+        "",
+        "## Peak-reflectance matrix",
+        "",
+        f"{len(matrix['cases'])} cases across "
+        f"{len({row['centre_nm'] for row in matrix['cases']})} centre wavelengths "
+        f"and {len({row['periods'] for row in matrix['cases']})} period counts. "
+        f"Maximum absolute error: {matrix['max_abs_error']:.2e} "
+        f"(budget {matrix['cases'][0]['tolerance']:.0e}).",
+        "",
+        "Full matrix is in `validation_matrix.json`. Edge validation remains the "
+        "single 1550 nm, 15-period fixture because the infinite-stack edge "
+        "formula is not accurate for small period counts.",
+        "",
+        "## Period count study (400-3000 nm sweep)",
+        "",
+        "| periods | layers | peak reflectance | R>=0.5 width (nm) |",
+        "|---:|---:|---:|---:|",
+        f"| {low_periods['periods']} | {low_periods['layers']} | "
+        f"{low_periods['peak_reflectance']:.6f} | {low_periods['high_reflectance_width_nm']:.1f} |",
+        f"| {high_periods['periods']} | {high_periods['layers']} | "
+        f"{high_periods['peak_reflectance']:.6f} | {high_periods['high_reflectance_width_nm']:.1f} |",
+        "",
+        "Full sweep is in `parameter_study.csv`. For low period counts the "
+        "sidelobes merge with the main high-reflectance region, so the width is "
+        "not the asymptotic photonic band gap.",
+        "",
+        "## Throughput",
+        "",
+        f"Highest measured throughput: {fastest['points_per_ms']} wavelength points/ms "
+        f"({fastest['periods']} periods, {fastest['n_points']} points). "
+        "Times are medians of 5 runs on the generation host; see `benchmark.json`.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true",
+                        help="validate only; write no artifacts")
+    args = parser.parse_args()
+
+    validation = validation_report()
+    matrix = validation_matrix()
+
+    if args.check:
+        print(f"Validation within tolerance: {validation['within_tolerance']}")
+        print(f"Matrix cases: {len(matrix['cases'])}, "
+              f"max abs error {matrix['max_abs_error']:.2e}")
+        return
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "validation_vs_analytic.json").write_text(
+        json.dumps(validation, indent=2) + "\n")
+    (OUT / "validation_matrix.json").write_text(
+        json.dumps(matrix, indent=2) + "\n")
+
+    study = parameter_study()
+    write_parameter_csv(OUT / "parameter_study.csv", study)
+
+    bench = benchmark()
+    (OUT / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n")
+
+    default_sweep = run_sweep(1400.0, 1700.0, 501)
+    write_sweep_csv(OUT / "reflectance_default_sweep.csv", default_sweep)
+
+    (OUT / "summary.md").write_text(summary(validation, matrix, study, bench))
+    print(f"Wrote evaluation artifacts to {OUT}")
+    print(f"Validation within tolerance: {validation['within_tolerance']}")
+    print(f"Matrix max abs error: {matrix['max_abs_error']:.2e}")
+    print(f"High-reflectance width 2 -> 16 periods: "
+          f"{study[0]['high_reflectance_width_nm']:.1f} -> "
+          f"{study[-1]['high_reflectance_width_nm']:.1f} nm")
+
+
+if __name__ == "__main__":
+    main()

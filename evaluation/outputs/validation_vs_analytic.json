@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-10-29T13:19:02+00:00",
+  "simulator": "photonics_core C++ TMM",
+  "reference": "Born & Wolf 1.6.5 closed form",
+  "params": {
+    "material_high": "Si",
+    "material_low": "SiO2",
+    "centre_nm": 1550.0,
+    "periods": 15
+  },
+  "sweep": {
+    "start_nm": 800.0,
+    "stop_nm": 2400.0,
+    "n_points": 801
+  },
+  "metrics": {
+    "peak_reflectance_sim": 0.9999999999858606,
+    "peak_reflectance_reference": 1.0,
+    "peak_reflectance_abs_error": 1.4139356352416144e-11,
+    "peak_reflectance_tol": 0.001,
+    "stop_band_edge_low_sim_nm": 1218.8450485071023,
+    "stop_band_edge_low_reference_nm": 1219.3369,
+    "stop_band_edge_low_abs_error_nm": 0.4918514928976947,
+    "stop_band_edge_high_sim_nm": 2129.0132167207494,
+    "stop_band_edge_high_reference_nm": 2126.7334,
+    "stop_band_edge_high_abs_error_nm": 2.279816720749295,
+    "stop_band_edge_tol_nm": 10.0
+  },
+  "within_tolerance": true
+}

@@ -10,10 +10,20 @@ import numpy as np
 import photonics_core as pc
 from photonics_twin_app.schemas import BraggParams, Sweep
 
-# parents[3] only resolves in the source tree; once installed to site-packages it
-# points at the interpreter's lib dir. PHOTONICS_DATA_DIR is how containers say where
-# data actually landed.
-DATA_DIR = Path(os.environ.get("PHOTONICS_DATA_DIR", Path(__file__).resolve().parents[3] / "data"))
+# parents[3] resolves in the source tree; once installed to site-packages it
+# points at the interpreter's lib dir. PHOTONICS_DATA_DIR is how containers say
+# where data landed, and cwd/data covers a non-editable install run from the repo
+# root (CI).
+def _default_data_dir() -> Path:
+    source_tree = Path(__file__).resolve().parents[3] / "data"
+    repo_cwd = Path.cwd() / "data"
+    for candidate in (source_tree, repo_cwd):
+        if (candidate / "materials").is_dir():
+            return candidate
+    return source_tree
+
+_env_data_dir = os.environ.get("PHOTONICS_DATA_DIR")
+DATA_DIR = Path(_env_data_dir) if _env_data_dir else _default_data_dir()
 MATERIALS_DIR = DATA_DIR / "materials"
 
 @lru_cache(maxsize=8)

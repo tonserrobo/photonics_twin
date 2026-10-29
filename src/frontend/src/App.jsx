@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSimulation } from "./hooks/useSimulation.js";
 import ParameterPanel from "./components/ParameterPanel.jsx";
+import ScenarioControls from "./components/ScenarioControls.jsx";
 import SpectralPlot from "./components/SpectralPlot.jsx";
 import LayerStackView from "./components/LayerStackView.jsx";
 
@@ -17,13 +18,17 @@ export default function App() {
 
   return (
     <div className="container">
-      <ParameterPanel params={params} sweep={sweep} onChange={onChange} />
+      <div className="left">
+        <ParameterPanel params={params} sweep={sweep} onChange={onChange} />
+        <ScenarioControls params={params} sweep={sweep} result={result}
+                          onLoad={onChange} />
+      </div>
       <div className="right">
         <div className={`status ${status}`}>
           status: {status}
           {result?.meta?.compute_ms != null &&
-            ` · compute: ${result.meta.compute_ms.toFixed(2)} ms`}
-          {error && ` · error: ${error.message}`}
+            ` - compute: ${result.meta.compute_ms.toFixed(2)} ms`}
+          {error && ` - error: ${error.message}`}
         </div>
         <SpectralPlot wavelengths={result?.wavelengths_nm}
                       reflectance={result?.reflectance} />

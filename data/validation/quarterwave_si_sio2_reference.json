@@ -1,5 +1,5 @@
 {
-  "description": "Si/SiO2 quarter-wave Bragg @ 1550 nm, 15 periods, vacuum incident & substrate. Reference: Born & Wolf \u00a71.6.5.",
+  "description": "Si/SiO2 quarter-wave Bragg @ 1550 nm, 15 periods, vacuum incident & substrate. Reference: Born & Wolf 1.6.5.",
   "params": {
     "material_high": "Si",
     "material_low": "SiO2",

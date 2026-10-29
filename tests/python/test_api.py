@@ -1,12 +1,17 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 from photonics_twin_app.main import create_app
+from photonics_twin_app import sim
 from pydantic import ValidationError
 from photonics_twin_app.schemas import SimulateRequest
 
 @pytest.fixture
 def app():
     return create_app()
+
+def test_data_dir_resolves_materials():
+    assert (sim.MATERIALS_DIR / "sellmeier_si.json").is_file()
+    assert (sim.MATERIALS_DIR / "sellmeier_sio2.json").is_file()
 
 @pytest.fixture
 async def client(app):

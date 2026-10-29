@@ -1,0 +1,295 @@
+{
+  "description": "Si/SiO2 quarter-wave peak reflectance matrix. Reference: Born & Wolf 1.6.5. Edge validation remains in quarterwave_si_sio2_reference.json because the infinite-stack edge formula is not accurate for small period counts.",
+  "material_pair": [
+    "Si",
+    "SiO2"
+  ],
+  "tolerance": 1e-06,
+  "cases": [
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1310.0,
+        "periods": 4
+      },
+      "sweep": {
+        "start_nm": 1110.0,
+        "stop_nm": 1510.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.996625734111,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.503912,
+        "n_low_at_centre": 1.446804
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1310.0,
+        "periods": 8
+      },
+      "sweep": {
+        "start_nm": 1110.0,
+        "stop_nm": 1510.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999997143953,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.503912,
+        "n_low_at_centre": 1.446804
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1310.0,
+        "periods": 12
+      },
+      "sweep": {
+        "start_nm": 1110.0,
+        "stop_nm": 1510.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999997587,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.503912,
+        "n_low_at_centre": 1.446804
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1310.0,
+        "periods": 15
+      },
+      "sweep": {
+        "start_nm": 1110.0,
+        "stop_nm": 1510.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999999988,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.503912,
+        "n_low_at_centre": 1.446804
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1310.0,
+        "periods": 16
+      },
+      "sweep": {
+        "start_nm": 1110.0,
+        "stop_nm": 1510.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999999998,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.503912,
+        "n_low_at_centre": 1.446804
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1550.0,
+        "periods": 4
+      },
+      "sweep": {
+        "start_nm": 1350.0,
+        "stop_nm": 1750.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.996472014618,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.477724,
+        "n_low_at_centre": 1.444024
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1550.0,
+        "periods": 8
+      },
+      "sweep": {
+        "start_nm": 1350.0,
+        "stop_nm": 1750.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999996877323,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.477724,
+        "n_low_at_centre": 1.444024
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1550.0,
+        "periods": 12
+      },
+      "sweep": {
+        "start_nm": 1350.0,
+        "stop_nm": 1750.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999997241,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.477724,
+        "n_low_at_centre": 1.444024
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1550.0,
+        "periods": 15
+      },
+      "sweep": {
+        "start_nm": 1350.0,
+        "stop_nm": 1750.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999999986,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.477724,
+        "n_low_at_centre": 1.444024
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 1550.0,
+        "periods": 16
+      },
+      "sweep": {
+        "start_nm": 1350.0,
+        "stop_nm": 1750.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999999998,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.477724,
+        "n_low_at_centre": 1.444024
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 2000.0,
+        "periods": 4
+      },
+      "sweep": {
+        "start_nm": 1800.0,
+        "stop_nm": 2200.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.996383431768,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.452684,
+        "n_low_at_centre": 1.438085
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 2000.0,
+        "periods": 8
+      },
+      "sweep": {
+        "start_nm": 1800.0,
+        "stop_nm": 2200.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999996718251,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.452684,
+        "n_low_at_centre": 1.438085
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 2000.0,
+        "periods": 12
+      },
+      "sweep": {
+        "start_nm": 1800.0,
+        "stop_nm": 2200.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999997027,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.452684,
+        "n_low_at_centre": 1.438085
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 2000.0,
+        "periods": 15
+      },
+      "sweep": {
+        "start_nm": 1800.0,
+        "stop_nm": 2200.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999999984,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.452684,
+        "n_low_at_centre": 1.438085
+      }
+    },
+    {
+      "params": {
+        "material_high": "Si",
+        "material_low": "SiO2",
+        "centre_nm": 2000.0,
+        "periods": 16
+      },
+      "sweep": {
+        "start_nm": 1800.0,
+        "stop_nm": 2200.0,
+        "n_points": 401
+      },
+      "reference": {
+        "peak_reflectance": 0.999999999997,
+        "tolerance": 1e-06,
+        "n_high_at_centre": 3.452684,
+        "n_low_at_centre": 1.438085
+      }
+    }
+  ]
+}

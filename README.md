@@ -21,11 +21,37 @@ cd src/frontend && npm install && npm run dev            # terminal 2
 # open http://localhost:5173
 ```
 
+## Scope and limitations (v0.1)
+
+This slice is a **single-component Bragg grating simulator and integration
+prototype**, not an FPGA implementation or a calibrated digital twin.
+
+It models a 1-D, normal-incidence, lossless Si/SiO2 quarter-wave stack with
+Sellmeier dispersion and returns reflectance only. It supports 2-16 periods
+(4-32 layers), 400-2500 nm design centres, and 200-3000 nm sweeps.
+
+It does not model angle or polarisation, absorption or gain, temperature,
+strain, fabrication tolerance, apodisation, waveguides/PICs, or multi-component
+systems. FPGA acceleration is a design path under evaluation, not a delivered
+capability. See `evaluation/scope_and_sme_alignment.md` for the full assessment.
+
 ## Docker
 
 Two images: backend compiles the C++ core into a wheel and discards the toolchain;
 frontend builds the Vite bundle and serves it from nginx, which also proxies the API
 and WebSocket so the UI is single-origin.
+
+```powershell
+.\run.ps1                        # build + start, wait for health, open the UI
+.\run.ps1 -NoBuild               # start existing images
+.\run.ps1 -Logs                  # follow logs
+.\run.ps1 -Down                  # stop and remove the stack
+```
+
+The UI is at http://localhost:5173; the API is also exposed on http://localhost:8000.
+The UI can export the spectrum as CSV or JSON and save/load a scenario.
+
+For explicit image builds and the end-to-end smoke test:
 
 ```powershell
 .\scripts\build.ps1              # both images, tagged from pyproject.toml + :latest
@@ -45,6 +71,26 @@ image). Leave it unset outside containers and it falls back to the repo tree.
 See `docs/superpowers/specs/2026-04-29-bragg-feasibility-prototype-design.md`
 for the full design and `docs/superpowers/plans/2026-04-29-bragg-feasibility-prototype.md`
 for the implementation plan.
+
+## Evaluation
+
+`evaluation/` holds reproducible research outputs for the v0.1 prototype:
+simulator-vs-analytic validation, a period-count study, a throughput benchmark,
+and the default reflectance sweep.
+
+```powershell
+.\.venv\Scripts\python.exe scripts\evaluate.py
+```
+
+The script checks the simulator against the independent Born & Wolf fixture
+before writing, and aborts on a tolerance failure. See `evaluation/README.md`
+for the metrics, output schema, and known limits.
+
+`evaluation/scope_and_sme_alignment.md` assesses the simulation scope, the
+FPGA readiness gap, and alignment with the SPEAR SME Needs Assessment. It also
+lists the prioritised next steps. The current slice is a single-component
+simulator and integration prototype, not an FPGA implementation or a calibrated
+digital twin.
 
 ## Validation
 

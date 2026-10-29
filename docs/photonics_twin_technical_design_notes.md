@@ -326,3 +326,51 @@ photonics-twin/
 | 6 | Confirm HPC sandbox partition access, network policies, and Slurm API availability. | HPC admin |
 | 7 | Draft SMDH data access ethics application (for submission end of Year 1). | PI / Research Office |
 | 8 | Define validation methodology and error budget thresholds for foundation model acceptance. | Photonics lead / PI |
+
+---
+
+## Appendix A - Feasibility prototype v0.1 evaluation (29 October 2026)
+
+The v0.1 Bragg-grating slice now has a reproducible evaluation pack under
+`evaluation/`. `scripts/evaluate.py` drives the installed C++ TMM kernel and
+writes four machine-readable outputs plus a human-readable summary:
+
+- `evaluation/outputs/validation_vs_analytic.json` - simulator vs the independent
+  Born & Wolf 1.6.5 oracle.
+- `evaluation/outputs/parameter_study.csv` - peak reflectance and R >= 0.5 width
+  for 2-16 periods.
+- `evaluation/outputs/benchmark.json` - median kernel time for 4 period counts
+  x 3 sweep sizes, 5 repeats.
+- `evaluation/outputs/reflectance_default_sweep.csv` - default 1400-1700 nm
+  spectrum used by the UI.
+
+Headline results for the Si/SiO2 quarter-wave stack at 1550 nm (15 periods,
+vacuum ambient and substrate):
+
+| Metric | Simulator | Born & Wolf | Absolute error | Budget |
+|---|---:|---:|---:|---:|
+| Peak reflectance at 1550 nm | 1.000000 | 1.000000 | 1.4e-11 | 1e-3 |
+| Low stop-band edge | 1218.85 nm | 1219.34 nm | 0.49 nm | 10 nm |
+| High stop-band edge | 2129.01 nm | 2126.73 nm | 2.28 nm | 10 nm |
+
+The C++ kernel measured about 3k wavelength points/ms at 5 periods (2001
+points) on the generation host, corresponding to sub-10 ms for the 32-layer cap.
+Increasing from 2 to 16 periods raises the peak reflectance from 0.888 to 1.0
+and narrows the merged high-reflectance region from 1580 nm to 907 nm.
+
+This closes Next Step 8 at prototype scope: an independent oracle, a numeric
+error budget, a sweep-size benchmark, and a repeatable artifact generator. The
+foundation model still needs component-level acceptance criteria, lossy and
+angular models, and cross-host performance measurements before the budget can be
+treated as programme-wide.
+
+Known limits: normal incidence, vacuum ambient/substrate, lossless Sellmeier
+materials, no apodisation or fabrication error; benchmark timings are host
+specific. Low-period R >= 0.5 widths include merged sidelobes rather than the
+asymptotic photonic band gap.
+
+The wider assessment of simulation scope, FPGA readiness, and alignment with the
+SPEAR SME Needs Assessment is in `evaluation/scope_and_sme_alignment.md`. It
+records the current slice as a validated single-component simulator, not an
+FPGA implementation or a calibrated digital twin.
+

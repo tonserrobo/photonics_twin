@@ -1,0 +1,109 @@
+{
+  "source": {
+    "name": "SPEAR Centre SME Needs Assessment",
+    "instrument": "JISC online survey",
+    "analysis_file": "data_analysis/needs_analysis.ipynb",
+    "latest_export": "spear-centre-sme-survey-12-06-2026.xlsx",
+    "analysis_n": 24,
+    "latest_export_data_rows": 24,
+    "deck_reported_n": 25,
+    "period": "Round 1, January-June 2026",
+    "note": "Aggregate counts only. Respondent-level data, open-text responses and contact details are deliberately excluded."
+  },
+  "demographics": {
+    "sectors": {
+      "Manufacturing": 13,
+      "Healthcare": 3,
+      "Agri-tech": 1,
+      "Automotive": 1,
+      "Design (Product & Industrial)": 1,
+      "ICT": 1,
+      "Industrial Automation": 1,
+      "Photonics Research - PICs, optical backplanes": 1,
+      "Sensors": 1,
+      "Simulation Software": 1
+    },
+    "company_sizes": {
+      "10-49 employees": 13,
+      "1-9 employees": 9,
+      "50-249 employees": 2
+    },
+    "locations": {
+      "Antrim": 7,
+      "Londonderry": 7,
+      "Tyrone": 3,
+      "Armagh": 2,
+      "Down": 2,
+      "Dublin": 1,
+      "Fermanagh": 1,
+      "Glasgow / Wexford / Belfast": 1
+    }
+  },
+  "awareness": {
+    "tech_adoption": {
+      "Mainstream adopter": 13,
+      "Early adopter": 10,
+      "Late adopter": 1
+    },
+    "heard_of_photonics": {
+      "Yes": 15,
+      "No": 8,
+      "Not sure": 1
+    },
+    "understanding_rating": {
+      "mean": 2.5,
+      "median": 2,
+      "scale_max": 5,
+      "n": 24
+    }
+  },
+  "interest": {
+    "see_potential": {
+      "Yes": 15,
+      "Not sure": 8,
+      "No": 1
+    },
+    "lab_facilities": {
+      "Yes": 14,
+      "No": 10
+    },
+    "co_development": {
+      "Not sure": 12,
+      "Yes": 11,
+      "No": 1
+    },
+    "want_contact": {
+      "Yes - please contact me": 16,
+      "No, not at this time": 8
+    }
+  },
+  "barriers": [
+    { "label": "Cost of implementation", "count": 17 },
+    { "label": "Limited access to R&D or facilities", "count": 15 },
+    { "label": "Lack of in-house expertise", "count": 11 }
+  ],
+  "value_areas": [
+    { "label": "Improved sensing/monitoring", "count": 11 },
+    { "label": "Advanced manufacturing", "count": 9 },
+    { "label": "Miniaturisation of components", "count": 7 }
+  ],
+  "engagement_forms": [
+    { "label": "Joint R&D projects (publicly funded)", "count": 13 },
+    { "label": "Feasibility studies or prototyping support", "count": 13 },
+    { "label": "Access to demonstrator technologies", "count": 12 }
+  ],
+  "support_needs": [
+    { "label": "Advanced R&D collaboration", "count": 10 },
+    { "label": "I don't know yet", "count": 9 },
+    { "label": "Basic understanding/introduction", "count": 8 }
+  ],
+  "open_text_themes": [
+    "Cost and ROI must be clear before committing time or budget",
+    "Local or easily commutable facilities matter; university bureaucracy is a barrier",
+    "Clear IP terms and low administrative burden are prerequisites",
+    "Short, funded, time-bounded proof-of-concept projects are preferred",
+    "SMEs need a concrete explanation of how photonics benefits their product",
+    "Some respondents lack in-house optical skills and want mentoring",
+    "Demonstrators and access to specialist test equipment are valued"
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "generated_at": "2026-10-29T13:19:02+00:00",
+  "simulator": "photonics_core C++ TMM",
+  "reference": "Born & Wolf 1.6.5 closed form",
+  "cases": [
+    {
+      "centre_nm": 1310.0,
+      "periods": 4,
+      "peak_reflectance_sim": 0.9966257341107776,
+      "peak_reflectance_reference": 0.996625734111,
+      "abs_error": 2.2237767183241886e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1310.0,
+      "periods": 8,
+      "peak_reflectance_sim": 0.999997143953496,
+      "peak_reflectance_reference": 0.999997143953,
+      "abs_error": 4.960476474025199e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1310.0,
+      "periods": 12,
+      "peak_reflectance_sim": 0.9999999975866578,
+      "peak_reflectance_reference": 0.999999997587,
+      "abs_error": 3.4217073618947325e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1310.0,
+      "periods": 15,
+      "peak_reflectance_sim": 0.9999999999880391,
+      "peak_reflectance_reference": 0.999999999988,
+      "abs_error": 3.907985046680551e-14,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1310.0,
+      "periods": 16,
+      "peak_reflectance_sim": 0.9999999999979605,
+      "peak_reflectance_reference": 0.999999999998,
+      "abs_error": 3.952393967665557e-14,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1550.0,
+      "periods": 4,
+      "peak_reflectance_sim": 0.9964720146184828,
+      "peak_reflectance_reference": 0.996472014618,
+      "abs_error": 4.828359934094806e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1550.0,
+      "periods": 8,
+      "peak_reflectance_sim": 0.9999968773227441,
+      "peak_reflectance_reference": 0.999996877323,
+      "abs_error": 2.559064071760986e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1550.0,
+      "periods": 12,
+      "peak_reflectance_sim": 0.9999999972409368,
+      "peak_reflectance_reference": 0.999999997241,
+      "abs_error": 6.317169010117141e-14,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1550.0,
+      "periods": 15,
+      "peak_reflectance_sim": 0.9999999999858606,
+      "peak_reflectance_reference": 0.999999999986,
+      "abs_error": 1.3933298959045715e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 1550.0,
+      "periods": 16,
+      "peak_reflectance_sim": 0.9999999999975622,
+      "peak_reflectance_reference": 0.999999999998,
+      "abs_error": 4.3787196091216174e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 2000.0,
+      "periods": 4,
+      "peak_reflectance_sim": 0.9963834317676137,
+      "peak_reflectance_reference": 0.996383431768,
+      "abs_error": 3.863576125695545e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 2000.0,
+      "periods": 8,
+      "peak_reflectance_sim": 0.9999967182506155,
+      "peak_reflectance_reference": 0.999996718251,
+      "abs_error": 3.844702334276917e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 2000.0,
+      "periods": 12,
+      "peak_reflectance_sim": 0.99999999702745,
+      "peak_reflectance_reference": 0.999999997027,
+      "abs_error": 4.4997339188057595e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 2000.0,
+      "periods": 15,
+      "peak_reflectance_sim": 0.9999999999844797,
+      "peak_reflectance_reference": 0.999999999984,
+      "abs_error": 4.797273689405301e-13,
+      "tolerance": 1e-06
+    },
+    {
+      "centre_nm": 2000.0,
+      "periods": 16,
+      "peak_reflectance_sim": 0.9999999999973073,
+      "peak_reflectance_reference": 0.999999999997,
+      "abs_error": 3.0730973321624333e-13,
+      "tolerance": 1e-06
+    }
+  ],
+  "max_abs_error": 4.960476474025199e-13,
+  "within_tolerance": true
+}
