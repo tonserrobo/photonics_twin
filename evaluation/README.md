@@ -78,7 +78,9 @@ idealised Gaussian thickness errors, not a real process distribution.
 
 At `10 pm` wavelength noise the measurement-noise-limited resolution is
 `0.153 K` and `6.1 microstrain`. That excludes drift, calibration, and
-linewidth effects, so treat it as a lower bound.
+linewidth effects, so treat it as a lower bound. The temperature value is
+order-of-magnitude consistent with NIST silicon waveguide thermometers
+(`70-80 pm/K`); the strain value is higher than a silica FBG (`~1.2 pm/microstrain`).
 
 ## Limits
 

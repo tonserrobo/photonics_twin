@@ -307,6 +307,31 @@ needs of the SME base, but not yet with the **technical value** they ranked
 highest. The sensing extension is the shortest credible route from "interesting
 demo" to "useful feasibility study".
 
+### 6.2 Sensitivity sanity check and the RIU limit
+
+The model's temperature sensitivity (`65 pm/K`) is the same order as the
+`70-80 pm/degree C` reported for SiO2-clad silicon waveguide Bragg grating
+thermometers (NIST, 2015). The geometric strain sensitivity (`1.63 pm/microstrain`)
+is higher than the `~1.2 pm/microstrain` of a silica fibre Bragg grating, which
+is plausible for a Si/SiO2 quarter-wave stack but is not a direct validation.
+The `10 pm` noise case gives `0.153 K` and `6.1 microstrain`, consistent with
+the rule of thumb that about `1 pm` wavelength uncertainty corresponds to about
+`1 microstrain` (NIST, 2005) and with typical OSA resolution.
+
+This is an **order-of-magnitude check, not a calibration**. Do not quote
+`nm/RIU` from the current free-space stack: changing the ambient index mainly
+alters boundary reflection, not a guided-mode overlap. A waveguide Bragg
+component is required before claiming refractive-index sensing.
+
+References:
+
+- Klimov et al., "On-Chip Silicon Waveguide Bragg Grating Photonic Temperature
+  Sensor", Optics Letters (2015), doi:10.1364/OL.40.003934.
+- Dyer et al., "Fundamental limits in fiber Bragg grating peak wavelength
+  measurements", Proc. SPIE 5855 (2005).
+- "Fiber Bragg Grating Sensors toward Structural Health Monitoring in Composite
+  Materials", Sensors 14(4), 7394 (2014), doi:10.3390/s140407394.
+
 ---
 
 ## 7. What is next to complete this
@@ -336,15 +361,17 @@ evaluation, export a scenario, and run the Docker stack without help.
 - [x] Report `nm/K` and `pm/microstrain` sensitivity and the stop-band
   centre shift.
 - [x] Add measurement-noise-limited temperature/strain resolution.
-- [ ] Report `nm/RIU` and add a full drift/calibration uncertainty budget.
+- [ ] Add a full drift/calibration uncertainty budget; `nm/RIU` is deferred
+  to a waveguide component.
 - [x] Add seeded Monte Carlo thickness tolerance and yield.
 - [ ] Add refractive-index variation and process-specific distributions.
 - [x] Add CSV/JSON export.
 - [x] Add a batch sweep endpoint.
 - [x] Add Telecom, sensing-edge and strain-gauge UI presets.
 - [ ] Add a refractive-index preset.
-- [ ] Validate against published sensitivity values; the current `0.065 nm/K`
-  is checked against the effective-index estimate, not a measurement.
+- [x] Sanity-check temperature and strain sensitivity against published
+  FBG/silicon values (order of magnitude only).
+- [ ] Directly validate against a measured device.
 
 **Done when:** an SME can change a physical input and see a defensible
 sensitivity number, not just a shifted spectrum.
