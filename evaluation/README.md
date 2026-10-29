@@ -32,6 +32,7 @@ broken build cannot silently produce plausible-looking research artifacts.
 | `outputs/validation_matrix.json` | Peak reflectance for 15 cases across 1310/1550/2000 nm and 4-16 periods, with per-case errors |
 | `outputs/reflectance_default_sweep.csv` | 1400-1700 nm, 501-point spectrum for the default UI parameters |
 | `outputs/parameter_study.csv` | Peak reflectance and R >= 0.5 width for 2-16 periods on a 400-3000 nm sweep |
+| `outputs/temperature_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods between 20 and 80 C |
 | `outputs/benchmark.json` | Median C++ kernel time over 5 runs for 4 period counts x 3 sweep sizes |
 | `outputs/summary.md` | Human-readable summary of the validation, period study, and throughput |
 | `outputs/sme_needs_summary.json` | Aggregate SME survey findings (n=24) used in the alignment assessment; no respondent-level data |
@@ -56,6 +57,12 @@ Across the 15-case peak-reflectance matrix (1310/1550/2000 nm x 4-16 periods),
 the maximum absolute error against Born & Wolf is `4.96e-13` against a `1e-6`
 budget. Stop-band edge validation remains the single 1550 nm, 15-period fixture
 because the infinite-stack edge formula is not accurate for small period counts.
+
+The temperature model shifts the 15-period stop-band centre by `3.92 nm` from
+20 to 80 C, i.e. `0.065 nm/K`. This uses typical Si/SiO2 thermo-optic and
+thermal-expansion coefficients and is linear around 20 C; it is a design aid,
+not a calibrated sensor model. Replace the coefficients with measured data
+before quoting a sensitivity to an SME.
 
 ## Limits
 

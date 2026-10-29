@@ -5,6 +5,7 @@ class BraggParams(BaseModel):
     material_low:  str = Field(pattern="^(Si|SiO2)$")
     centre_nm:     confloat(ge=400.0, le=2500.0)
     periods:       conint(ge=2, le=16)   # 2 * 16 == MAX_LAYERS
+    temperature_c: confloat(ge=-40.0, le=200.0) = 20.0
 
 class Sweep(BaseModel):
     start_nm: confloat(ge=200.0, le=3000.0)

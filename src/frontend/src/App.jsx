@@ -6,7 +6,8 @@ import SpectralPlot from "./components/SpectralPlot.jsx";
 import LayerStackView from "./components/LayerStackView.jsx";
 
 const INITIAL_PARAMS = { material_high: "Si", material_low: "SiO2",
-                          centre_nm: 1550.0, periods: 15 };
+                          centre_nm: 1550.0, periods: 15,
+                          temperature_c: 20.0 };
 const INITIAL_SWEEP  = { start_nm: 1400.0, stop_nm: 1700.0, n_points: 501 };
 
 export default function App() {
@@ -30,6 +31,13 @@ export default function App() {
             ` - compute: ${result.meta.compute_ms.toFixed(2)} ms`}
           {error && ` - error: ${error.message}`}
         </div>
+        {result?.meta?.sensitivity_nm_per_k != null && (
+          <div className="sensing">
+            temperature {result.meta.temperature_c.toFixed(0)} C
+            {` | stop-band centre ${result.meta.stop_band_centre_nm?.toFixed(2) ?? "n/a"} nm`}
+            {` | sensitivity ${result.meta.sensitivity_nm_per_k.toFixed(3)} nm/K`}
+          </div>
+        )}
         <SpectralPlot wavelengths={result?.wavelengths_nm}
                       reflectance={result?.reflectance} />
         <LayerStackView stack={result?.stack} />

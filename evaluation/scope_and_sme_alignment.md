@@ -29,10 +29,11 @@ integration slice**, not a digital twin and not an FPGA implementation.
   browser-based, fast simulator directly addresses the first two and partly
   the third. However, improved sensing/monitoring is the top value area (11/24)
   and the current model cannot yet answer a real sensing question because it
-  lacks temperature, strain, ambient-index, loss, and fabrication effects.
+  lacks strain, ambient-index, loss, and fabrication effects; its temperature
+  model is linear and uncalibrated.
 - **Recommended next slice:** extend the Bragg model into a **sensing**
-  slice (temperature, strain, ambient index, tolerance, sensitivity, export,
-  presets) before starting FPGA work. It reuses the validated kernel, speaks
+  slice (temperature is done; strain, ambient index, tolerance and presets
+  remain) before starting FPGA work. It reuses the validated kernel, speaks
   directly to the top SME value area, and produces a demonstrable prototype.
 
 ---
@@ -70,7 +71,7 @@ storage, design optimisation, and lab-facility integration.
 | Environment | Vacuum incident and substrate media | No fibre, air, substrate, or encapsulation stack |
 | Stack design | Uniform quarter-wave pairs | No apodisation, chirp, defects, or arbitrary layer design |
 | Output | Reflectance `|r|^2` only | No transmission, phase, field profile, or group delay |
-| Temperature/strain | Not modelled | No sensing sensitivity, drift, or thermal calibration |
+| Temperature | Linear dn/dT plus thermal expansion around 20 C | No calibration, nonlinearity, or strain coupling |
 | Fabrication | Ideal thicknesses and indices | No tolerance, yield, or process variation |
 
 ### 3.2 Parameter envelope
@@ -282,7 +283,7 @@ clear benefit, and a low-friction route to a prototype.
 |---|---|---|---|---|---|
 | Cost 17/24; facility access 15/24 | Free browser UI, CPU simulation, Docker, no licence | Strong for simulation access | No hosted pilot, no cost/ROI model | Publish a free pilot instance and a one-page cost/ROI guide | P0 |
 | Feasibility/prototyping 13/24; demonstrators 12/24 | Live sweeps, REST/WS, one-command Docker | Partial | No CSV/JSON export, no save/compare, no preset scenarios | Add export, scenario save/load, and 3-5 demo presets | P0 |
-| Sensing/monitoring 11/24 (top value) | Bragg grating is a sensing element, but ideal and reflectance-only | Partial/weak | No temperature, strain, ambient-index, loss, or sensitivity metrics | Extend Bragg model into a sensing slice | P1 |
+| Sensing/monitoring 11/24 (top value) | Bragg is a sensing element with a linear temperature model | Partial | No strain, ambient-index, loss, tolerance, or calibrated sensitivity | Add strain/ambient-index and tolerance to the sensing slice | P1 |
 | Basic understanding 8/24; "don't know yet" 9/24; median understanding 2/5 | Sliders, plot, layer-stack view | Strong/partial | No guided tour, interpretation, or report | Add tutorial presets, tooltips, and a "what this means" panel | P1 |
 | Joint R&D 13/24; co-development 11 yes / 12 not sure | Open API, reproducible Docker | Partial | No project scoping, IP template, or engagement workflow | Create an SME engagement pack and IP/terms template | P1 |
 | Advanced manufacturing 9/24 | Uniform quarter-wave stack only | Weak | No fabrication tolerance, yield, or process variation | Add tolerance/yield analysis | P2 |
@@ -328,16 +329,19 @@ evaluation, export a scenario, and run the Docker stack without help.
 
 ### P1 - Bragg sensing slice (4-8 weeks)
 
-- [ ] Add thermo-optic (`dn/dT`), strain/photoelastic, and ambient-index
-  response.
-- [ ] Report sensitivity (`nm/K`, `nm/epsilon`, `nm/RIU`), detection limit,
-  and a simple uncertainty budget.
+- [x] Add thermo-optic (`dn/dT`) and thermal-expansion response.
+- [ ] Add strain/photoelastic and ambient-index response.
+- [x] Report `nm/K` sensitivity and the stop-band centre shift.
+- [ ] Report `nm/epsilon` and `nm/RIU`, detection limit, and a full uncertainty
+  budget.
 - [ ] Add fabrication tolerance (thickness/index variation) and Monte Carlo
   yield.
-- [ ] Add batch sweep endpoint and CSV export.
-- [ ] Add sensing presets: temperature sensor, strain gauge, refractive-index
-  sensor.
-- [ ] Validate against published sensitivity values or an independent model.
+- [x] Add CSV/JSON export.
+- [ ] Add a batch sweep endpoint.
+- [x] Add Telecom and sensing-edge UI presets.
+- [ ] Add strain-gauge and refractive-index presets.
+- [ ] Validate against published sensitivity values; the current `0.065 nm/K`
+  is checked against the effective-index estimate, not a measurement.
 
 **Done when:** an SME can change a physical input and see a defensible
 sensitivity number, not just a shifted spectrum.

@@ -102,6 +102,40 @@ async def test_mock_slurm_echo(client):
     assert data["echo"] == payload
     assert "received_at" in data
 
+async def test_temperature_sensitivity(client):
+    def body(temperature_c):
+        return {
+            "component": "bragg_grating",
+            "params": {"material_high": "Si", "material_low": "SiO2",
+                       "centre_nm": 1550.0, "periods": 15,
+                       "temperature_c": temperature_c},
+            "sweep":  {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+        }
+
+    r20 = await client.post("/simulate/tmm/sweep", json=body(20.0))
+    r60 = await client.post("/simulate/tmm/sweep", json=body(60.0))
+    assert r20.status_code == 200
+    assert r60.status_code == 200
+
+    meta20 = r20.json()["meta"]
+    meta60 = r60.json()["meta"]
+    assert meta20["temperature_c"] == 20.0
+    assert meta60["temperature_c"] == 60.0
+    assert meta60["stop_band_centre_nm"] > meta20["stop_band_centre_nm"] + 1.0
+    assert 0.02 < meta60["sensitivity_nm_per_k"] < 0.2
+
+async def test_temperature_out_of_range(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15,
+                   "temperature_c": 250.0},
+        "sweep":  {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+    }
+    r = await client.post("/simulate/tmm/sweep", json=body)
+    assert r.status_code == 422
+    assert "temperature_c" in r.text
+
 from fastapi.testclient import TestClient
 
 def test_ws_sim_recompute(app):

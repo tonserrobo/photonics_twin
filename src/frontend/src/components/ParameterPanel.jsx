@@ -1,12 +1,41 @@
 const MATERIALS = ["Si", "SiO2"];
 
+const BASE_PARAMS = {
+  material_high: "Si",
+  material_low: "SiO2",
+  centre_nm: 1550,
+  periods: 15,
+  temperature_c: 20,
+};
+
+const PRESETS = {
+  telecom: {
+    params: { ...BASE_PARAMS },
+    sweep: { start_nm: 1400, stop_nm: 1700, n_points: 501 },
+  },
+  sensing: {
+    params: { ...BASE_PARAMS },
+    sweep: { start_nm: 1150, stop_nm: 1350, n_points: 501 },
+  },
+};
+
 export default function ParameterPanel({ params, sweep, onChange }) {
   const set = (next) => onChange({ ...params, ...next }, sweep);
   const setSweep = (next) => onChange(params, { ...sweep, ...next });
+  const applyPreset = (preset) => onChange(preset.params, preset.sweep);
 
   return (
     <div className="panel">
       <h2>Parameters</h2>
+
+      <div className="presets">
+        <button type="button" onClick={() => applyPreset(PRESETS.telecom)}>
+          Telecom filter
+        </button>
+        <button type="button" onClick={() => applyPreset(PRESETS.sensing)}>
+          Sensing edge
+        </button>
+      </div>
 
       <label>material_high
         <select value={params.material_high}
@@ -32,6 +61,12 @@ export default function ParameterPanel({ params, sweep, onChange }) {
         <input type="range" min="2" max="16" step="1"
                value={params.periods}
                onChange={(e) => set({ periods: Number(e.target.value) })} />
+      </label>
+
+      <label>temperature_c = {params.temperature_c.toFixed(0)}
+        <input type="range" min="-40" max="200" step="1"
+               value={params.temperature_c}
+               onChange={(e) => set({ temperature_c: Number(e.target.value) })} />
       </label>
 
       <h3>Sweep</h3>

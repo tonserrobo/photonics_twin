@@ -27,6 +27,18 @@ Full matrix is in `validation_matrix.json`. Edge validation remains the single 1
 
 Full sweep is in `parameter_study.csv`. For low period counts the sidelobes merge with the main high-reflectance region, so the width is not the asymptotic photonic band gap.
 
+## Temperature sensitivity (20 -> 80 C)
+
+| periods | centre 20 C (nm) | centre 80 C (nm) | shift (nm) | sensitivity (nm/K) |
+|---:|---:|---:|---:|---:|
+| 4 | 1740.49 | 1744.76 | 4.27 | 0.0711 |
+| 8 | 1688.86 | 1692.85 | 3.99 | 0.0665 |
+| 12 | 1677.67 | 1681.61 | 3.94 | 0.0657 |
+| 15 | 1674.24 | 1678.16 | 3.92 | 0.0653 |
+| 16 | 1673.47 | 1677.40 | 3.93 | 0.0656 |
+
+Full study is in `temperature_sensitivity.csv`. The model is linear around 20 C and uses typical Si/SiO2 thermo-optic and expansion coefficients; replace them with measured data for quantitative design.
+
 ## Throughput
 
-Highest measured throughput: 3060.6 wavelength points/ms (5 periods, 101 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.
+Highest measured throughput: 3027.2 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.

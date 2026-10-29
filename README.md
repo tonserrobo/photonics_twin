@@ -27,13 +27,15 @@ This slice is a **single-component Bragg grating simulator and integration
 prototype**, not an FPGA implementation or a calibrated digital twin.
 
 It models a 1-D, normal-incidence, lossless Si/SiO2 quarter-wave stack with
-Sellmeier dispersion and returns reflectance only. It supports 2-16 periods
-(4-32 layers), 400-2500 nm design centres, and 200-3000 nm sweeps.
+Sellmeier dispersion, linear temperature dependence, and returns reflectance
+only. It supports 2-16 periods (4-32 layers), 400-2500 nm design centres,
+200-3000 nm sweeps, and -40 to 200 C.
 
-It does not model angle or polarisation, absorption or gain, temperature,
-strain, fabrication tolerance, apodisation, waveguides/PICs, or multi-component
-systems. FPGA acceleration is a design path under evaluation, not a delivered
-capability. See `evaluation/scope_and_sme_alignment.md` for the full assessment.
+It does not model angle or polarisation, absorption or gain, strain,
+ambient-index response, fabrication tolerance, apodisation, waveguides/PICs, or
+multi-component systems. FPGA acceleration is a design path under evaluation,
+not a delivered capability. See `evaluation/scope_and_sme_alignment.md` for the
+full assessment.
 
 ## Docker
 

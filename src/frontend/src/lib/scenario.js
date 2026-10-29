@@ -78,6 +78,8 @@ export function parseScenario(text) {
   }
   if (!isNumber(params.centre_nm)) throw new Error("params.centre_nm must be a number");
   if (!isNumber(params.periods)) throw new Error("params.periods must be a number");
+  const temperature = params.temperature_c ?? 20;
+  if (!isNumber(temperature)) throw new Error("params.temperature_c must be a number");
   for (const key of SWEEP_KEYS) {
     if (!isNumber(sweep[key])) throw new Error(`sweep.${key} must be a number`);
   }
@@ -87,6 +89,9 @@ export function parseScenario(text) {
   }
   if (!Number.isInteger(params.periods) || params.periods < 2 || params.periods > 16) {
     throw new Error("params.periods out of range");
+  }
+  if (temperature < -40 || temperature > 200) {
+    throw new Error("params.temperature_c out of range");
   }
   if (sweep.start_nm < 200 || sweep.start_nm > 3000
       || sweep.stop_nm < 200 || sweep.stop_nm > 3000) {
@@ -99,5 +104,8 @@ export function parseScenario(text) {
     throw new Error("sweep.start_nm must be less than sweep.stop_nm");
   }
 
-  return { params: { ...params }, sweep: { ...sweep } };
+  return {
+    params: { ...params, temperature_c: temperature },
+    sweep: { ...sweep },
+  };
 }

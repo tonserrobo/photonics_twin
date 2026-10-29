@@ -29,10 +29,12 @@ MATRIX = ROOT / "data" / "validation" / "quarterwave_matrix.json"
 LEVEL = 0.5
 
 
-def run_sweep(start_nm, stop_nm, n_points, centre_nm=1550.0, periods=15):
+def run_sweep(start_nm, stop_nm, n_points, centre_nm=1550.0, periods=15,
+              temperature_c=20.0):
     return run_bragg_sweep(
         BraggParams(material_high="Si", material_low="SiO2",
-                    centre_nm=centre_nm, periods=periods),
+                    centre_nm=centre_nm, periods=periods,
+                    temperature_c=temperature_c),
         Sweep(start_nm=start_nm, stop_nm=stop_nm, n_points=n_points),
     )
 
@@ -161,6 +163,30 @@ def parameter_study():
     return rows
 
 
+def temperature_study():
+    rows = []
+    for periods in (4, 8, 12, 15, 16):
+        centres = {}
+        for temperature_c in (20.0, 80.0):
+            out = run_sweep(800.0, 2400.0, 4001, 1550.0, periods, temperature_c)
+            wl = np.asarray(out["wavelengths_nm"])
+            R = np.asarray(out["reflectance"])
+            edge_low, edge_high = stop_band_edges(wl, R, centre_nm=1550.0)
+            centres[temperature_c] = (edge_low + edge_high) / 2.0
+        shift = centres[80.0] - centres[20.0]
+        if shift <= 0.0:
+            raise RuntimeError(f"temperature did not redshift the stop band at {periods} periods")
+        rows.append({
+            "periods": periods,
+            "layers": 2 * periods,
+            "centre_20c_nm": round(centres[20.0], 3),
+            "centre_80c_nm": round(centres[80.0], 3),
+            "shift_nm": round(shift, 3),
+            "sensitivity_nm_per_k": round(shift / 60.0, 5),
+        })
+    return rows
+
+
 def benchmark(repeats=5):
     cases = []
     for periods in (5, 10, 15, 16):
@@ -202,7 +228,7 @@ def write_parameter_csv(path, rows):
         writer.writerows(rows)
 
 
-def summary(validation, matrix, study, bench):
+def summary(validation, matrix, study, temperature, bench):
     m = validation["metrics"]
     low_periods = study[0]
     high_periods = study[-1]
@@ -256,6 +282,21 @@ def summary(validation, matrix, study, bench):
         "sidelobes merge with the main high-reflectance region, so the width is "
         "not the asymptotic photonic band gap.",
         "",
+        "## Temperature sensitivity (20 -> 80 C)",
+        "",
+        "| periods | centre 20 C (nm) | centre 80 C (nm) | shift (nm) | sensitivity (nm/K) |",
+        "|---:|---:|---:|---:|---:|",
+        *[
+            f"| {row['periods']} | {row['centre_20c_nm']:.2f} | "
+            f"{row['centre_80c_nm']:.2f} | {row['shift_nm']:.2f} | "
+            f"{row['sensitivity_nm_per_k']:.4f} |"
+            for row in temperature
+        ],
+        "",
+        "Full study is in `temperature_sensitivity.csv`. The model is linear "
+        "around 20 C and uses typical Si/SiO2 thermo-optic and expansion "
+        "coefficients; replace them with measured data for quantitative design.",
+        "",
         "## Throughput",
         "",
         f"Highest measured throughput: {fastest['points_per_ms']} wavelength points/ms "
@@ -274,11 +315,14 @@ def main():
 
     validation = validation_report()
     matrix = validation_matrix()
+    temperature = temperature_study()
 
     if args.check:
         print(f"Validation within tolerance: {validation['within_tolerance']}")
         print(f"Matrix cases: {len(matrix['cases'])}, "
               f"max abs error {matrix['max_abs_error']:.2e}")
+        print(f"Temperature sensitivity (15 periods): "
+              f"{next(row for row in temperature if row['periods'] == 15)['sensitivity_nm_per_k']:.4f} nm/K")
         return
 
     OUT.mkdir(parents=True, exist_ok=True)
@@ -289,6 +333,7 @@ def main():
 
     study = parameter_study()
     write_parameter_csv(OUT / "parameter_study.csv", study)
+    write_parameter_csv(OUT / "temperature_sensitivity.csv", temperature)
 
     bench = benchmark()
     (OUT / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n")
@@ -296,7 +341,8 @@ def main():
     default_sweep = run_sweep(1400.0, 1700.0, 501)
     write_sweep_csv(OUT / "reflectance_default_sweep.csv", default_sweep)
 
-    (OUT / "summary.md").write_text(summary(validation, matrix, study, bench))
+    (OUT / "summary.md").write_text(
+        summary(validation, matrix, study, temperature, bench))
     print(f"Wrote evaluation artifacts to {OUT}")
     print(f"Validation within tolerance: {validation['within_tolerance']}")
     print(f"Matrix max abs error: {matrix['max_abs_error']:.2e}")

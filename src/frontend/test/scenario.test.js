@@ -8,6 +8,7 @@ const PARAMS = {
   material_low: "SiO2",
   centre_nm: 1550,
   periods: 15,
+  temperature_c: 20,
 };
 const SWEEP = { start_nm: 1400, stop_nm: 1700, n_points: 11 };
 
@@ -58,4 +59,16 @@ test("parseScenario rejects an inverted sweep", () => {
   const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
   raw.sweep.start_nm = 1800;
   assert.throws(() => parseScenario(JSON.stringify(raw)), /start_nm must be less/);
+});
+
+test("parseScenario defaults temperature for older scenarios", () => {
+  const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
+  delete raw.params.temperature_c;
+  assert.equal(parseScenario(JSON.stringify(raw)).params.temperature_c, 20);
+});
+
+test("parseScenario rejects an out-of-range temperature", () => {
+  const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
+  raw.params.temperature_c = 250;
+  assert.throws(() => parseScenario(JSON.stringify(raw)), /temperature_c out of range/);
 });
