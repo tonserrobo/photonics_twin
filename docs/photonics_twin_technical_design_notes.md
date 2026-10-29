@@ -374,3 +374,11 @@ SPEAR SME Needs Assessment is in `evaluation/scope_and_sme_alignment.md`. It
 records the current slice as a validated single-component simulator, not an
 FPGA implementation or a calibrated digital twin.
 
+
+An October 2026 Vitis HLS 2023.2 spike lives in `src/hdl/hls/`. It matched a
+double-precision reference to `1.37e-7` and hit `II=1` at about `137 MHz` for a
+fixed 2-period stack, but used `87%` of DSPs and `81%` of LUTs on a Zynq-7020.
+The numerical gate passes; the resource-scalability gate fails for the 32-layer
+cap. Records are in `src/hdl/hls/README.md` and
+`evaluation/outputs/fpga_spike.json`. Do not claim FPGA capability until the
+trig/multiplier strategy is improved and G2/G3 are rerun.

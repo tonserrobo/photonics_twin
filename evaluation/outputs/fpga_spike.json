@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-10-29",
+  "tool": "Vitis HLS 2023.2",
+  "target_part": "xc7z020clg400-1",
+  "target_family": "Zynq-7000",
+  "kernel": "fixed 2-period Si/SiO2 TMM, normal incidence, vacuum ambient/substrate",
+  "scope": "numerical and synthesis spike, not a production kernel",
+  "clock_ns": 10.0,
+  "estimated_fmax_mhz": 136.99,
+  "estimated_clock_ns": 7.3,
+  "initiation_interval": 1,
+  "iteration_latency_cycles": 177,
+  "csim": {
+    "points": 501,
+    "max_abs_error_vs_double": 1.373e-07,
+    "min_reflectance": 0.882979,
+    "max_reflectance": 0.887867,
+    "result": "pass"
+  },
+  "resources": {
+    "BRAM_18K": 8,
+    "DSP": 192,
+    "FF": 42548,
+    "LUT": 43317,
+    "DSP_percent": 87,
+    "FF_percent": 39,
+    "LUT_percent": 81,
+    "BRAM_percent": 2
+  },
+  "gates": {
+    "G1_numerical_equivalence": "pass",
+    "G2_timing": "pass",
+    "G2_resource_scalability": "fail_on_zynq7020",
+    "G3_end_to_end": "not_run",
+    "G4_decision": "do_not_claim_fpga_capability; optimize or change target"
+  },
+  "notes": [
+    "The float sin/cos implementation and fully unrolled matrix chain dominate resources.",
+    "192 DSPs for 2 periods leaves no room to scale to 32 layers on this part.",
+    "Next options: fixed-point CORDIC/LUT trig, shared/time-multiplexed multipliers, reduced unroll, a larger UltraScale+ part, or a GPU/surrogate path.",
+    "CPU remains the correct engine for interactive SME use; the FPGA case is batch throughput/power or embedded deployment."
+  ],
+  "report_paths": {
+    "csynth": "src/hdl/hls/tmm_hls/solution1/syn/report/tmm_sweep_fixed_csynth.rpt",
+    "csim": "src/hdl/hls/tmm_hls/solution1/csim/report/tmm_sweep_fixed_csim.log"
+  }
+}

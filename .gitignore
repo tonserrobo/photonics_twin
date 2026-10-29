@@ -34,3 +34,8 @@ src/frontend/dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# HLS / Vitis
+src/hdl/hls/tmm_hls/
+vitis_hls.log
+*.hls_prj

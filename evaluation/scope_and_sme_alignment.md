@@ -152,12 +152,22 @@ written:
   choices.
 - The HLS header is included inside `namespace photonics` (`common.hpp:7-10`),
   which needs fixing before a real HLS build.
-- There is no `src/hdl/` directory, no VHDL, no HLS testbench, no synthesis
-  constraints, no target board, and no Vitis build in CI.
+- A spike now exists under `src/hdl/hls/` (`tmm_hls.cpp`, testbench,
+  `run_hls.tcl`), but it is a fixed 2-period kernel, not the production path;
+  there is still no VHDL, no CI synthesis, and no production target board.
 
 The technical design notes describe targets (`II=1`, unroll factor 4, 32 layers
 in BRAM, `ap_fixed<32,8>` and intermediate `<48,16>`) in sections 5.1-5.3. Those
 are **design targets, not measured results**.
+
+**Spike result (2026-10-29, Vitis HLS 2023.2, Zynq-7020):** C-simulation
+matched double precision to `1.37e-7`, and the kernel achieved `II=1` at an
+estimated `136.99 MHz`. Resource use was `192/220 DSP (87%)`, `43,317/53,200`
+LUT (81%), `42,548/106,400` FF (39%), and 8 BRAM for a **2-period** stack.
+That is a numerical feasibility pass but a scalability failure on this part;
+it cannot reach the 32-layer cap without a different trig/multiplier strategy
+or a larger device. See `evaluation/outputs/fpga_spike.json` and
+`src/hdl/hls/README.md`.
 
 ### 4.2 Is the TMM a good HLS target?
 
@@ -180,7 +190,8 @@ stack and stays below 10 ms at the 32-layer cap. Interactive SME use cases are
 latency-bound at the human scale, not throughput-bound at the FPGA scale. The
 business case for FPGA is therefore **batch throughput, power, or embedded
 deployment**, not the current UI. A GPU or surrogate path may be cheaper and
-faster to deliver.
+faster to deliver. The 2-period spike used almost all DSPs on a Zynq-7020,
+which reinforces that the naive kernel is not a near-term product path.
 
 ### 4.4 Gated FPGA spike
 
@@ -193,6 +204,11 @@ Run this only after the sensing slice, or in parallel with a dedicated engineer.
 | G2 | C synthesis report | Meets latency/II, DSP/BRAM/LUT/FF and clock targets |
 | G3 | Co-simulation or host demo | End-to-end sweep produces the expected spectrum |
 | G4 | Decision | Adopt HLS, switch to GPU/surrogate, or stop |
+
+Spike status: **G1 pass; G2 timing pass; G2 resource scalability fail; G3 not
+run; G4 current decision = do not claim FPGA capability.** The next attempt
+must replace float trig and the fully unrolled multiplier chain before re-running
+the gate.
 
 Suggested numerical gate: absolute reflectance error <= `1e-3` and peak
 wavelength error <= `1 nm` versus the double-precision kernel. Resource and
@@ -378,8 +394,12 @@ sensitivity number, not just a shifted spectrum.
 
 ### P2 - FPGA decision spike (6-10 weeks, gated)
 
-- [ ] Complete G0-G4 from section 4.4.
-- [ ] Publish the synthesis report and the CPU-vs-HLS comparison.
+- [x] Run a G1/G2 spike (2-period, Zynq-7020).
+- [ ] Improve fixed-point trig and multiplier sharing, then rerun G2 to a
+  resource pass.
+- [ ] Complete G3/G4.
+- [x] Publish the spike synthesis report.
+- [ ] Complete the CPU-vs-HLS throughput/power comparison.
 - [ ] Decide HLS vs GPU vs surrogate with a documented business case.
 
 **Done when:** the decision is evidence-based and the phrase "FPGA-capable" is

@@ -36,6 +36,7 @@ broken build cannot silently produce plausible-looking research artifacts.
 | `outputs/strain_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods at 0 and 1000 microstrain |
 | `outputs/tolerance_study.csv` | Monte Carlo thickness-error yield for 0, 2, 5 and 10 nm per-layer sigma |
 | `outputs/uncertainty_budget.csv` | T/strain resolution versus wavelength noise from 1 to 50 pm |
+| `outputs/fpga_spike.json` | Vitis HLS 2-period fixed-point spike: numerical error, timing and resource use |
 | `outputs/benchmark.json` | Median C++ kernel time over 5 runs for 4 period counts x 3 sweep sizes |
 | `outputs/summary.md` | Human-readable summary of the validation, period study, and throughput |
 | `outputs/sme_needs_summary.json` | Aggregate SME survey findings (n=24) used in the alignment assessment; no respondent-level data |
@@ -81,6 +82,11 @@ At `10 pm` wavelength noise the measurement-noise-limited resolution is
 linewidth effects, so treat it as a lower bound. The temperature value is
 order-of-magnitude consistent with NIST silicon waveguide thermometers
 (`70-80 pm/K`); the strain value is higher than a silica FBG (`~1.2 pm/microstrain`).
+
+The HLS spike matched double precision to `1.37e-7` and hit `II=1` at about
+`137 MHz`, but a **2-period** stack used `87%` of DSPs and `81%` of LUTs on a
+Zynq-7020. That is a numerical pass and a scalability fail, not an FPGA
+capability claim.
 
 ## Limits
 
