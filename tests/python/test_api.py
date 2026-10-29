@@ -135,6 +135,39 @@ async def test_temperature_out_of_range(client):
     r = await client.post("/simulate/tmm/sweep", json=body)
     assert r.status_code == 422
     assert "temperature_c" in r.text
+async def test_strain_sensitivity(client):
+    def body(strain_microstrain):
+        return {
+            "component": "bragg_grating",
+            "params": {"material_high": "Si", "material_low": "SiO2",
+                       "centre_nm": 1550.0, "periods": 15,
+                       "strain_microstrain": strain_microstrain},
+            "sweep":  {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+        }
+
+    r0 = await client.post("/simulate/tmm/sweep", json=body(0.0))
+    r1000 = await client.post("/simulate/tmm/sweep", json=body(1000.0))
+    assert r0.status_code == 200
+    assert r1000.status_code == 200
+
+    meta0 = r0.json()["meta"]
+    meta1000 = r1000.json()["meta"]
+    assert meta0["strain_microstrain"] == 0.0
+    assert meta1000["strain_microstrain"] == 1000.0
+    assert meta1000["stop_band_centre_nm"] > meta0["stop_band_centre_nm"] + 1.0
+    assert 1.0 < meta1000["strain_sensitivity_pm_per_microstrain"] < 3.0
+
+async def test_strain_out_of_range(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15,
+                   "strain_microstrain": 6000.0},
+        "sweep":  {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+    }
+    r = await client.post("/simulate/tmm/sweep", json=body)
+    assert r.status_code == 422
+    assert "strain_microstrain" in r.text
 
 from fastapi.testclient import TestClient
 

@@ -29,10 +29,10 @@ integration slice**, not a digital twin and not an FPGA implementation.
   browser-based, fast simulator directly addresses the first two and partly
   the third. However, improved sensing/monitoring is the top value area (11/24)
   and the current model cannot yet answer a real sensing question because it
-  lacks strain, ambient-index, loss, and fabrication effects; its temperature
+  lacks photoelastic strain, ambient-index, loss, and fabrication effects; its temperature
   model is linear and uncalibrated.
 - **Recommended next slice:** extend the Bragg model into a **sensing**
-  slice (temperature is done; strain, ambient index, tolerance and presets
+  slice (temperature and geometric strain are done; photoelastic strain, ambient index, tolerance and presets
   remain) before starting FPGA work. It reuses the validated kernel, speaks
   directly to the top SME value area, and produces a demonstrable prototype.
 
@@ -71,7 +71,8 @@ storage, design optimisation, and lab-facility integration.
 | Environment | Vacuum incident and substrate media | No fibre, air, substrate, or encapsulation stack |
 | Stack design | Uniform quarter-wave pairs | No apodisation, chirp, defects, or arbitrary layer design |
 | Output | Reflectance `|r|^2` only | No transmission, phase, field profile, or group delay |
-| Temperature | Linear dn/dT plus thermal expansion around 20 C | No calibration, nonlinearity, or strain coupling |
+| Temperature | Linear dn/dT plus thermal expansion around 20 C | No calibration or nonlinearity |
+| Strain | Geometric thickness scaling; no photoelastic index change | No calibrated gauge or elasto-optic coupling |
 | Fabrication | Ideal thicknesses and indices | No tolerance, yield, or process variation |
 
 ### 3.2 Parameter envelope
@@ -330,10 +331,11 @@ evaluation, export a scenario, and run the Docker stack without help.
 ### P1 - Bragg sensing slice (4-8 weeks)
 
 - [x] Add thermo-optic (`dn/dT`) and thermal-expansion response.
-- [ ] Add strain/photoelastic and ambient-index response.
-- [x] Report `nm/K` sensitivity and the stop-band centre shift.
-- [ ] Report `nm/epsilon` and `nm/RIU`, detection limit, and a full uncertainty
-  budget.
+- [x] Add geometric strain (thickness scaling) response.
+- [ ] Add photoelastic index change and ambient-index response.
+- [x] Report `nm/K` and `pm/microstrain` sensitivity and the stop-band centre
+  shift.
+- [ ] Report `nm/RIU`, detection limit, and a full uncertainty budget.
 - [ ] Add fabrication tolerance (thickness/index variation) and Monte Carlo
   yield.
 - [x] Add CSV/JSON export.

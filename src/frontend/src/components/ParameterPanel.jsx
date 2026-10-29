@@ -6,6 +6,7 @@ const BASE_PARAMS = {
   centre_nm: 1550,
   periods: 15,
   temperature_c: 20,
+  strain_microstrain: 0,
 };
 
 const PRESETS = {
@@ -16,6 +17,10 @@ const PRESETS = {
   sensing: {
     params: { ...BASE_PARAMS },
     sweep: { start_nm: 1150, stop_nm: 1350, n_points: 501 },
+  },
+  strain: {
+    params: { ...BASE_PARAMS },
+    sweep: { start_nm: 1200, stop_nm: 1240, n_points: 401 },
   },
 };
 
@@ -34,6 +39,9 @@ export default function ParameterPanel({ params, sweep, onChange }) {
         </button>
         <button type="button" onClick={() => applyPreset(PRESETS.sensing)}>
           Sensing edge
+        </button>
+        <button type="button" onClick={() => applyPreset(PRESETS.strain)}>
+          Strain gauge
         </button>
       </div>
 
@@ -69,6 +77,12 @@ export default function ParameterPanel({ params, sweep, onChange }) {
                onChange={(e) => set({ temperature_c: Number(e.target.value) })} />
       </label>
 
+      <label>strain_microstrain = {params.strain_microstrain.toFixed(0)}
+        <input type="range" min="-5000" max="5000" step="100"
+               value={params.strain_microstrain}
+               onChange={(e) => set({ strain_microstrain: Number(e.target.value) })} />
+      </label>
+ 
       <h3>Sweep</h3>
       <label>start_nm = {sweep.start_nm.toFixed(0)}
         <input type="range" min="400" max="2400" step="1"

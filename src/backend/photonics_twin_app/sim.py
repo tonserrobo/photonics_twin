@@ -63,9 +63,10 @@ def _stop_band_edges(wavelengths, reflectance, centre_nm, level=0.5):
     return crossing(i, i + 1), crossing(j, j - 1)
 
 
-def _edges_at(high, low, params, temperature_c):
+def _edges_at(high, low, params, temperature_c, strain_microstrain):
     g = pc.BraggGrating(high, low, params.centre_nm, params.periods)
     g.set_temperature_c(temperature_c)
+    g.set_strain_microstrain(strain_microstrain)
     # Wider than the stop band so both edges are inside the sweep. At 2500 nm
     # the high edge can exceed the 3000 nm API cap, which returns None.
     start = max(200.0, params.centre_nm * 0.60)
@@ -84,8 +85,10 @@ def _temperature_sensitivity(high, low, params):
     if other == params.temperature_c:
         return None, None, None
 
-    edges_now = _edges_at(high, low, params, params.temperature_c)
-    edges_next = _edges_at(high, low, params, other)
+    edges_now = _edges_at(high, low, params, params.temperature_c,
+                          params.strain_microstrain)
+    edges_next = _edges_at(high, low, params, other,
+                           params.strain_microstrain)
     if edges_now is None or edges_next is None:
         return None, None, edges_now
 
@@ -95,28 +98,55 @@ def _temperature_sensitivity(high, low, params):
     return sensitivity, centre_now, edges_now
 
 
+def _strain_sensitivity(high, low, params, centre_now):
+    # Geometric strain only: layer thickness scales with (1 + strain). A
+    # 1000 microstrain step gives a ~1.7 nm shift, well above sweep resolution.
+    delta = 1000.0
+    other = params.strain_microstrain + delta
+    if other > 5000.0:
+        other = params.strain_microstrain - delta
+    if other == params.strain_microstrain:
+        return None
+
+    edges_other = _edges_at(high, low, params, params.temperature_c, other)
+    if edges_other is None or centre_now is None:
+        return None
+    centre_other = (edges_other[0] + edges_other[1]) / 2.0
+    nm_per_microstrain = (centre_other - centre_now) / (other - params.strain_microstrain)
+    return nm_per_microstrain * 1000.0
+
+
 def run_bragg_sweep(params: BraggParams, sweep: Sweep) -> dict:
     high = _material(params.material_high)
     low  = _material(params.material_low)
     g = pc.BraggGrating(high, low, params.centre_nm, params.periods)
     g.set_temperature_c(params.temperature_c)
+    g.set_strain_microstrain(params.strain_microstrain)
 
     wl = np.linspace(sweep.start_nm, sweep.stop_nm, sweep.n_points, dtype=np.float64)
     t0 = time.perf_counter()
     R  = g.reflectance(wl)
     compute_ms = (time.perf_counter() - t0) * 1000.0
 
-    sensitivity, centre_nm, edges = _temperature_sensitivity(high, low, params)
+    temperature_sensitivity, centre_nm, edges = _temperature_sensitivity(
+        high, low, params)
+    strain_sensitivity = _strain_sensitivity(high, low, params, centre_nm)
     stack = g.stack_view()  # already a list of dicts
     meta = {
         "compute_ms": round(compute_ms, 3),
         "n_layers": len(stack),
         "temperature_c": params.temperature_c,
+        "strain_microstrain": params.strain_microstrain,
         "stop_band_centre_nm": None if centre_nm is None else round(centre_nm, 4),
         "edge_low_nm": None if edges is None else round(edges[0], 4),
         "edge_high_nm": None if edges is None else round(edges[1], 4),
         "sensitivity_nm_per_k": (
-            None if sensitivity is None else round(sensitivity, 6)
+            None if temperature_sensitivity is None
+            else round(temperature_sensitivity, 6)
+        ),
+        "strain_sensitivity_pm_per_microstrain": (
+            None if strain_sensitivity is None
+            else round(strain_sensitivity, 4)
         ),
     }
     return {

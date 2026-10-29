@@ -9,6 +9,7 @@ const PARAMS = {
   centre_nm: 1550,
   periods: 15,
   temperature_c: 20,
+  strain_microstrain: 0,
 };
 const SWEEP = { start_nm: 1400, stop_nm: 1700, n_points: 11 };
 
@@ -71,4 +72,16 @@ test("parseScenario rejects an out-of-range temperature", () => {
   const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
   raw.params.temperature_c = 250;
   assert.throws(() => parseScenario(JSON.stringify(raw)), /temperature_c out of range/);
+});
+
+test("parseScenario defaults strain for older scenarios", () => {
+  const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
+  delete raw.params.strain_microstrain;
+  assert.equal(parseScenario(JSON.stringify(raw)).params.strain_microstrain, 0);
+});
+
+test("parseScenario rejects an out-of-range strain", () => {
+  const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
+  raw.params.strain_microstrain = 6000;
+  assert.throws(() => parseScenario(JSON.stringify(raw)), /strain_microstrain out of range/);
 });

@@ -33,6 +33,7 @@ broken build cannot silently produce plausible-looking research artifacts.
 | `outputs/reflectance_default_sweep.csv` | 1400-1700 nm, 501-point spectrum for the default UI parameters |
 | `outputs/parameter_study.csv` | Peak reflectance and R >= 0.5 width for 2-16 periods on a 400-3000 nm sweep |
 | `outputs/temperature_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods between 20 and 80 C |
+| `outputs/strain_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods at 0 and 1000 microstrain |
 | `outputs/benchmark.json` | Median C++ kernel time over 5 runs for 4 period counts x 3 sweep sizes |
 | `outputs/summary.md` | Human-readable summary of the validation, period study, and throughput |
 | `outputs/sme_needs_summary.json` | Aggregate SME survey findings (n=24) used in the alignment assessment; no respondent-level data |
@@ -63,6 +64,10 @@ The temperature model shifts the 15-period stop-band centre by `3.92 nm` from
 thermal-expansion coefficients and is linear around 20 C; it is a design aid,
 not a calibrated sensor model. Replace the coefficients with measured data
 before quoting a sensitivity to an SME.
+
+Geometric strain shifts the 15-period stop-band centre by `1.63 nm` at
+`1000 microstrain`, i.e. `1.63 pm/microstrain`. Photoelastic index change is
+not modelled yet, so this is a geometric lower-order estimate.
 
 ## Limits
 

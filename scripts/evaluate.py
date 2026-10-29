@@ -30,11 +30,12 @@ LEVEL = 0.5
 
 
 def run_sweep(start_nm, stop_nm, n_points, centre_nm=1550.0, periods=15,
-              temperature_c=20.0):
+              temperature_c=20.0, strain_microstrain=0.0):
     return run_bragg_sweep(
         BraggParams(material_high="Si", material_low="SiO2",
                     centre_nm=centre_nm, periods=periods,
-                    temperature_c=temperature_c),
+                    temperature_c=temperature_c,
+                    strain_microstrain=strain_microstrain),
         Sweep(start_nm=start_nm, stop_nm=stop_nm, n_points=n_points),
     )
 
@@ -187,6 +188,32 @@ def temperature_study():
     return rows
 
 
+def strain_study():
+    rows = []
+    for periods in (4, 8, 12, 15, 16):
+        centres = {}
+        for strain_microstrain in (0.0, 1000.0):
+            out = run_sweep(800.0, 2400.0, 4001, 1550.0, periods,
+                            strain_microstrain=strain_microstrain)
+            wl = np.asarray(out["wavelengths_nm"])
+            R = np.asarray(out["reflectance"])
+            edge_low, edge_high = stop_band_edges(wl, R, centre_nm=1550.0)
+            centres[strain_microstrain] = (edge_low + edge_high) / 2.0
+        shift = centres[1000.0] - centres[0.0]
+        if shift <= 0.0:
+            raise RuntimeError(f"strain did not redshift the stop band at {periods} periods")
+        rows.append({
+            "periods": periods,
+            "layers": 2 * periods,
+            "centre_0ue_nm": round(centres[0.0], 3),
+            "centre_1000ue_nm": round(centres[1000.0], 3),
+            "shift_nm": round(shift, 3),
+            # nm per microstrain * 1000 pm/nm == shift in pm/microstrain.
+            "sensitivity_pm_per_microstrain": round(shift, 4),
+        })
+    return rows
+
+
 def benchmark(repeats=5):
     cases = []
     for periods in (5, 10, 15, 16):
@@ -228,7 +255,7 @@ def write_parameter_csv(path, rows):
         writer.writerows(rows)
 
 
-def summary(validation, matrix, study, temperature, bench):
+def summary(validation, matrix, study, temperature, strain, bench):
     m = validation["metrics"]
     low_periods = study[0]
     high_periods = study[-1]
@@ -296,6 +323,19 @@ def summary(validation, matrix, study, temperature, bench):
         "Full study is in `temperature_sensitivity.csv`. The model is linear "
         "around 20 C and uses typical Si/SiO2 thermo-optic and expansion "
         "coefficients; replace them with measured data for quantitative design.",
+        "",        "## Strain sensitivity (0 -> 1000 microstrain)",
+        "",
+        "| periods | centre 0 ue (nm) | centre 1000 ue (nm) | shift (nm) | sensitivity (pm/ue) |",
+        "|---:|---:|---:|---:|---:|",
+        *[
+            f"| {row['periods']} | {row['centre_0ue_nm']:.2f} | "
+            f"{row['centre_1000ue_nm']:.2f} | {row['shift_nm']:.2f} | "
+            f"{row['sensitivity_pm_per_microstrain']:.2f} |"
+            for row in strain
+        ],
+        "",
+        "Full study is in `strain_sensitivity.csv`. This is geometric strain "
+        "only; photoelastic index change is not modelled yet.",
         "",
         "## Throughput",
         "",
@@ -316,6 +356,7 @@ def main():
     validation = validation_report()
     matrix = validation_matrix()
     temperature = temperature_study()
+    strain = strain_study()
 
     if args.check:
         print(f"Validation within tolerance: {validation['within_tolerance']}")
@@ -323,6 +364,8 @@ def main():
               f"max abs error {matrix['max_abs_error']:.2e}")
         print(f"Temperature sensitivity (15 periods): "
               f"{next(row for row in temperature if row['periods'] == 15)['sensitivity_nm_per_k']:.4f} nm/K")
+        print(f"Strain sensitivity (15 periods): "
+              f"{next(row for row in strain if row['periods'] == 15)['sensitivity_pm_per_microstrain']:.2f} pm/ue")
         return
 
     OUT.mkdir(parents=True, exist_ok=True)
@@ -334,6 +377,7 @@ def main():
     study = parameter_study()
     write_parameter_csv(OUT / "parameter_study.csv", study)
     write_parameter_csv(OUT / "temperature_sensitivity.csv", temperature)
+    write_parameter_csv(OUT / "strain_sensitivity.csv", strain)
 
     bench = benchmark()
     (OUT / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n")
@@ -342,7 +386,7 @@ def main():
     write_sweep_csv(OUT / "reflectance_default_sweep.csv", default_sweep)
 
     (OUT / "summary.md").write_text(
-        summary(validation, matrix, study, temperature, bench))
+        summary(validation, matrix, study, temperature, strain, bench))
     print(f"Wrote evaluation artifacts to {OUT}")
     print(f"Validation within tolerance: {validation['within_tolerance']}")
     print(f"Matrix max abs error: {matrix['max_abs_error']:.2e}")

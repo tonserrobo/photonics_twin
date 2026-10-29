@@ -80,6 +80,8 @@ export function parseScenario(text) {
   if (!isNumber(params.periods)) throw new Error("params.periods must be a number");
   const temperature = params.temperature_c ?? 20;
   if (!isNumber(temperature)) throw new Error("params.temperature_c must be a number");
+  const strain = params.strain_microstrain ?? 0;
+  if (!isNumber(strain)) throw new Error("params.strain_microstrain must be a number");
   for (const key of SWEEP_KEYS) {
     if (!isNumber(sweep[key])) throw new Error(`sweep.${key} must be a number`);
   }
@@ -93,6 +95,9 @@ export function parseScenario(text) {
   if (temperature < -40 || temperature > 200) {
     throw new Error("params.temperature_c out of range");
   }
+  if (strain < -5000 || strain > 5000) {
+    throw new Error("params.strain_microstrain out of range");
+  }
   if (sweep.start_nm < 200 || sweep.start_nm > 3000
       || sweep.stop_nm < 200 || sweep.stop_nm > 3000) {
     throw new Error("sweep out of range");
@@ -105,7 +110,7 @@ export function parseScenario(text) {
   }
 
   return {
-    params: { ...params, temperature_c: temperature },
+    params: { ...params, temperature_c: temperature, strain_microstrain: strain },
     sweep: { ...sweep },
   };
 }

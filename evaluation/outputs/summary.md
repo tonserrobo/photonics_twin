@@ -39,6 +39,18 @@ Full sweep is in `parameter_study.csv`. For low period counts the sidelobes merg
 
 Full study is in `temperature_sensitivity.csv`. The model is linear around 20 C and uses typical Si/SiO2 thermo-optic and expansion coefficients; replace them with measured data for quantitative design.
 
+## Strain sensitivity (0 -> 1000 microstrain)
+
+| periods | centre 0 ue (nm) | centre 1000 ue (nm) | shift (nm) | sensitivity (pm/ue) |
+|---:|---:|---:|---:|---:|
+| 4 | 1740.49 | 1742.18 | 1.69 | 1.69 |
+| 8 | 1688.86 | 1690.51 | 1.65 | 1.65 |
+| 12 | 1677.67 | 1679.31 | 1.64 | 1.64 |
+| 15 | 1674.24 | 1675.87 | 1.63 | 1.63 |
+| 16 | 1673.47 | 1675.11 | 1.64 | 1.64 |
+
+Full study is in `strain_sensitivity.csv`. This is geometric strain only; photoelastic index change is not modelled yet.
+
 ## Throughput
 
-Highest measured throughput: 3027.2 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.
+Highest measured throughput: 2741.1 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.
