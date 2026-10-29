@@ -248,3 +248,59 @@ async def test_tolerance_rejects_too_many_samples(client):
     r = await client.post("/simulate/tmm/tolerance", json=body)
     assert r.status_code == 422
     assert "n_samples" in r.text
+async def test_batch_sweep(client):
+    body = {
+        "component": "bragg_grating",
+        "params": [
+            {"material_high": "Si", "material_low": "SiO2",
+             "centre_nm": 1550.0, "periods": 10},
+            {"material_high": "Si", "material_low": "SiO2",
+             "centre_nm": 1550.0, "periods": 15},
+        ],
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+    }
+    r = await client.post("/simulate/tmm/batch", json=body)
+    assert r.status_code == 200
+    results = r.json()["results"]
+    assert len(results) == 2
+    assert results[0]["meta"]["n_layers"] == 20
+    assert results[1]["meta"]["n_layers"] == 30
+    assert len(results[0]["reflectance"]) == 101
+
+async def test_batch_rejects_empty(client):
+    body = {
+        "component": "bragg_grating",
+        "params": [],
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+    }
+    r = await client.post("/simulate/tmm/batch", json=body)
+    assert r.status_code == 422
+    assert "params" in r.text
+
+async def test_measurement_resolution(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15,
+                   "wavelength_noise_nm": 0.01},
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+    }
+    r = await client.post("/simulate/tmm/sweep", json=body)
+    assert r.status_code == 200
+    meta = r.json()["meta"]
+    assert 0.1 < meta["temperature_resolution_k"] < 0.3
+    assert 4.0 < meta["strain_resolution_microstrain"] < 9.0
+
+async def test_zero_noise_gives_zero_resolution(client):
+    body = {
+        "component": "bragg_grating",
+        "params": {"material_high": "Si", "material_low": "SiO2",
+                   "centre_nm": 1550.0, "periods": 15,
+                   "wavelength_noise_nm": 0.0},
+        "sweep": {"start_nm": 1400.0, "stop_nm": 1700.0, "n_points": 101},
+    }
+    r = await client.post("/simulate/tmm/sweep", json=body)
+    assert r.status_code == 200
+    meta = r.json()["meta"]
+    assert meta["temperature_resolution_k"] == 0.0
+    assert meta["strain_resolution_microstrain"] == 0.0

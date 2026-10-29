@@ -30,12 +30,14 @@ LEVEL = 0.5
 
 
 def run_sweep(start_nm, stop_nm, n_points, centre_nm=1550.0, periods=15,
-              temperature_c=20.0, strain_microstrain=0.0):
+              temperature_c=20.0, strain_microstrain=0.0,
+              wavelength_noise_nm=0.01):
     return run_bragg_sweep(
         BraggParams(material_high="Si", material_low="SiO2",
                     centre_nm=centre_nm, periods=periods,
                     temperature_c=temperature_c,
-                    strain_microstrain=strain_microstrain),
+                    strain_microstrain=strain_microstrain,
+                    wavelength_noise_nm=wavelength_noise_nm),
         Sweep(start_nm=start_nm, stop_nm=stop_nm, n_points=n_points),
     )
 
@@ -214,6 +216,24 @@ def strain_study():
     return rows
 
 
+def uncertainty_study():
+    rows = []
+    for noise_nm in (0.001, 0.005, 0.01, 0.05):
+        out = run_sweep(1400.0, 1700.0, 101, 1550.0, 15,
+                        wavelength_noise_nm=noise_nm)
+        meta = out["meta"]
+        rows.append({
+            "wavelength_noise_nm": noise_nm,
+            "temperature_sensitivity_nm_per_k": meta["sensitivity_nm_per_k"],
+            "temperature_resolution_k": meta["temperature_resolution_k"],
+            "strain_sensitivity_pm_per_microstrain":
+                meta["strain_sensitivity_pm_per_microstrain"],
+            "strain_resolution_microstrain":
+                meta["strain_resolution_microstrain"],
+        })
+    return rows
+
+
 def tolerance_study():
     rows = []
     params = BraggParams(material_high="Si", material_low="SiO2",
@@ -279,7 +299,8 @@ def write_parameter_csv(path, rows):
         writer.writerows(rows)
 
 
-def summary(validation, matrix, study, temperature, strain, tolerance, bench):
+def summary(validation, matrix, study, temperature, strain, tolerance,
+                uncertainty, bench):
     m = validation["metrics"]
     low_periods = study[0]
     high_periods = study[-1]
@@ -373,6 +394,21 @@ def summary(validation, matrix, study, temperature, strain, tolerance, bench):
         "",
         "Yield counts a sample as failed if it has no detectable stop band or if "
         "its centre moves more than 2 nm. Full study is in `tolerance_study.csv`.",
+        "",        "## Measurement-noise resolution",
+        "",
+        "| noise (nm) | T sensitivity (nm/K) | T resolution (K) | strain sensitivity (pm/ue) | strain resolution (ue) |",
+        "|---:|---:|---:|---:|---:|",
+        *[
+            f"| {row['wavelength_noise_nm']:.3f} | "
+            f"{row['temperature_sensitivity_nm_per_k']:.4f} | "
+            f"{row['temperature_resolution_k']:.3f} | "
+            f"{row['strain_sensitivity_pm_per_microstrain']:.3f} | "
+            f"{row['strain_resolution_microstrain']:.2f} |"
+            for row in uncertainty
+        ],
+        "",
+        "Full table is in `uncertainty_budget.csv`. This is measurement-noise "
+        "limited only; it excludes drift, calibration, and linewidth effects.",
         "",
         "## Throughput",
         "",
@@ -395,6 +431,7 @@ def main():
     temperature = temperature_study()
     strain = strain_study()
     tolerance = tolerance_study()
+    uncertainty = uncertainty_study()
 
     if args.check:
         print(f"Validation within tolerance: {validation['within_tolerance']}")
@@ -404,6 +441,10 @@ def main():
               f"{next(row for row in temperature if row['periods'] == 15)['sensitivity_nm_per_k']:.4f} nm/K")
         print(f"Strain sensitivity (15 periods): "
               f"{next(row for row in strain if row['periods'] == 15)['sensitivity_pm_per_microstrain']:.2f} pm/ue")
+        ten_pm = next(row for row in uncertainty if row['wavelength_noise_nm'] == 0.01)
+        print(f"Resolution at 0.01 nm noise: "
+              f"{ten_pm['temperature_resolution_k']:.3f} K, "
+              f"{ten_pm['strain_resolution_microstrain']:.2f} ue")
         return
 
     OUT.mkdir(parents=True, exist_ok=True)
@@ -417,6 +458,7 @@ def main():
     write_parameter_csv(OUT / "temperature_sensitivity.csv", temperature)
     write_parameter_csv(OUT / "strain_sensitivity.csv", strain)
     write_parameter_csv(OUT / "tolerance_study.csv", tolerance)
+    write_parameter_csv(OUT / "uncertainty_budget.csv", uncertainty)
 
     bench = benchmark()
     (OUT / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n")
@@ -425,7 +467,8 @@ def main():
     write_sweep_csv(OUT / "reflectance_default_sweep.csv", default_sweep)
 
     (OUT / "summary.md").write_text(
-        summary(validation, matrix, study, temperature, strain, tolerance, bench))
+        summary(validation, matrix, study, temperature, strain, tolerance,
+                uncertainty, bench))
     print(f"Wrote evaluation artifacts to {OUT}")
     print(f"Validation within tolerance: {validation['within_tolerance']}")
     print(f"Matrix max abs error: {matrix['max_abs_error']:.2e}")

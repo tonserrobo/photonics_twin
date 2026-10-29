@@ -82,6 +82,8 @@ export function parseScenario(text) {
   if (!isNumber(temperature)) throw new Error("params.temperature_c must be a number");
   const strain = params.strain_microstrain ?? 0;
   if (!isNumber(strain)) throw new Error("params.strain_microstrain must be a number");
+  const noise = params.wavelength_noise_nm ?? 0.01;
+  if (!isNumber(noise)) throw new Error("params.wavelength_noise_nm must be a number");
   for (const key of SWEEP_KEYS) {
     if (!isNumber(sweep[key])) throw new Error(`sweep.${key} must be a number`);
   }
@@ -98,6 +100,9 @@ export function parseScenario(text) {
   if (strain < -5000 || strain > 5000) {
     throw new Error("params.strain_microstrain out of range");
   }
+  if (noise < 0 || noise > 1) {
+    throw new Error("params.wavelength_noise_nm out of range");
+  }
   if (sweep.start_nm < 200 || sweep.start_nm > 3000
       || sweep.stop_nm < 200 || sweep.stop_nm > 3000) {
     throw new Error("sweep out of range");
@@ -110,7 +115,12 @@ export function parseScenario(text) {
   }
 
   return {
-    params: { ...params, temperature_c: temperature, strain_microstrain: strain },
+    params: {
+      ...params,
+      temperature_c: temperature,
+      strain_microstrain: strain,
+      wavelength_noise_nm: noise,
+    },
     sweep: { ...sweep },
   };
 }

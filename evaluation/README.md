@@ -35,6 +35,7 @@ broken build cannot silently produce plausible-looking research artifacts.
 | `outputs/temperature_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods between 20 and 80 C |
 | `outputs/strain_sensitivity.csv` | Stop-band centre shift and sensitivity for 4-16 periods at 0 and 1000 microstrain |
 | `outputs/tolerance_study.csv` | Monte Carlo thickness-error yield for 0, 2, 5 and 10 nm per-layer sigma |
+| `outputs/uncertainty_budget.csv` | T/strain resolution versus wavelength noise from 1 to 50 pm |
 | `outputs/benchmark.json` | Median C++ kernel time over 5 runs for 4 period counts x 3 sweep sizes |
 | `outputs/summary.md` | Human-readable summary of the validation, period study, and throughput |
 | `outputs/sme_needs_summary.json` | Aggregate SME survey findings (n=24) used in the alignment assessment; no respondent-level data |
@@ -74,6 +75,10 @@ Fabrication tolerance is tighter than it looks: with a 2 nm per-layer thickness
 sigma and a 2 nm centre target, the simulated yield is `31%`; at 5 nm sigma it
 falls to `8%`, and 17 of 100 samples lose a detectable stop band. These are
 idealised Gaussian thickness errors, not a real process distribution.
+
+At `10 pm` wavelength noise the measurement-noise-limited resolution is
+`0.153 K` and `6.1 microstrain`. That excludes drift, calibration, and
+linewidth effects, so treat it as a lower bound.
 
 ## Limits
 

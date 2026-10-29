@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T13:49:25+00:00",
+  "generated_at": "2026-10-29T14:01:08+00:00",
   "simulator": "photonics_core C++ TMM",
   "reference": "Born & Wolf 1.6.5 closed form",
   "cases": [

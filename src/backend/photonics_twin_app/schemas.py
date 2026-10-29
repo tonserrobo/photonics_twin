@@ -7,6 +7,7 @@ class BraggParams(BaseModel):
     periods:       conint(ge=2, le=16)   # 2 * 16 == MAX_LAYERS
     temperature_c: confloat(ge=-40.0, le=200.0) = 20.0
     strain_microstrain: confloat(ge=-5000.0, le=5000.0) = 0.0
+    wavelength_noise_nm: confloat(ge=0.0, le=1.0) = 0.01
 
 class Sweep(BaseModel):
     start_nm: confloat(ge=200.0, le=3000.0)
@@ -38,3 +39,10 @@ class ToleranceRequest(BaseModel):
     thickness_sigma_nm: confloat(ge=0.0, le=50.0) = 5.0
     tolerance_nm: confloat(ge=0.1, le=50.0) = 2.0
     seed: conint(ge=0, le=4294967295) = 12345
+class BatchSweepRequest(BaseModel):
+    component: str
+    params: list[BraggParams] = Field(min_length=1, max_length=50)
+    sweep: Sweep
+
+class BatchSweepResponse(BaseModel):
+    results: list[SimulateResponse]

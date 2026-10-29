@@ -134,6 +134,15 @@ def run_bragg_sweep(params: BraggParams, sweep: Sweep) -> dict:
     temperature_sensitivity, centre_nm, edges = _temperature_sensitivity(
         high, low, params)
     strain_sensitivity = _strain_sensitivity(high, low, params, centre_nm)
+    noise_nm = params.wavelength_noise_nm
+    temp_resolution = (
+        None if not temperature_sensitivity
+        else noise_nm / abs(temperature_sensitivity)
+    )
+    strain_resolution = (
+        None if not strain_sensitivity
+        else noise_nm * 1000.0 / abs(strain_sensitivity)
+    )
     stack = g.stack_view()  # already a list of dicts
     meta = {
         "compute_ms": round(compute_ms, 3),
@@ -151,6 +160,13 @@ def run_bragg_sweep(params: BraggParams, sweep: Sweep) -> dict:
             None if strain_sensitivity is None
             else round(strain_sensitivity, 4)
         ),
+        "wavelength_noise_nm": noise_nm,
+        "temperature_resolution_k": (
+            None if temp_resolution is None else round(temp_resolution, 6)
+        ),
+        "strain_resolution_microstrain": (
+            None if strain_resolution is None else round(strain_resolution, 4)
+        ),
     }
     return {
         "wavelengths_nm": wl.tolist(),
@@ -158,6 +174,10 @@ def run_bragg_sweep(params: BraggParams, sweep: Sweep) -> dict:
         "stack":          stack,
         "meta":           meta,
     }
+
+
+def run_batch_sweep(params_list, sweep):
+    return [run_bragg_sweep(params, sweep) for params in params_list]
 
 
 def run_tolerance(params, sweep, n_samples, thickness_sigma_nm,

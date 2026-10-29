@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T13:49:27+00:00",
+  "generated_at": "2026-10-29T14:01:11+00:00",
   "platform": "Windows-11-10.0.26300-SP0",
   "python": "3.12.11",
   "note": "compute_ms measures the C++ reflectance call only; excludes JSON and material loading.",
@@ -9,120 +9,120 @@
       "layers": 10,
       "n_points": 101,
       "repeats": 5,
-      "median_ms": 0.038,
+      "median_ms": 0.035,
       "min_ms": 0.035,
-      "max_ms": 0.085,
-      "points_per_ms": 2657.9
+      "max_ms": 0.042,
+      "points_per_ms": 2885.7
     },
     {
       "periods": 5,
       "layers": 10,
       "n_points": 501,
       "repeats": 5,
-      "median_ms": 0.171,
-      "min_ms": 0.168,
-      "max_ms": 0.175,
-      "points_per_ms": 2929.8
+      "median_ms": 0.167,
+      "min_ms": 0.164,
+      "max_ms": 0.189,
+      "points_per_ms": 3000.0
     },
     {
       "periods": 5,
       "layers": 10,
       "n_points": 2001,
       "repeats": 5,
-      "median_ms": 0.674,
-      "min_ms": 0.648,
-      "max_ms": 0.78,
-      "points_per_ms": 2968.8
+      "median_ms": 0.653,
+      "min_ms": 0.644,
+      "max_ms": 0.7,
+      "points_per_ms": 3064.3
     },
     {
       "periods": 10,
       "layers": 20,
       "n_points": 101,
       "repeats": 5,
-      "median_ms": 0.073,
-      "min_ms": 0.067,
-      "max_ms": 0.076,
-      "points_per_ms": 1383.6
+      "median_ms": 0.068,
+      "min_ms": 0.066,
+      "max_ms": 0.069,
+      "points_per_ms": 1485.3
     },
     {
       "periods": 10,
       "layers": 20,
       "n_points": 501,
       "repeats": 5,
-      "median_ms": 0.359,
-      "min_ms": 0.343,
-      "max_ms": 0.395,
-      "points_per_ms": 1395.5
+      "median_ms": 0.323,
+      "min_ms": 0.319,
+      "max_ms": 0.345,
+      "points_per_ms": 1551.1
     },
     {
       "periods": 10,
       "layers": 20,
       "n_points": 2001,
       "repeats": 5,
-      "median_ms": 1.36,
-      "min_ms": 1.265,
-      "max_ms": 1.454,
-      "points_per_ms": 1471.3
+      "median_ms": 1.264,
+      "min_ms": 1.262,
+      "max_ms": 1.308,
+      "points_per_ms": 1583.1
     },
     {
       "periods": 15,
       "layers": 30,
       "n_points": 101,
       "repeats": 5,
-      "median_ms": 0.101,
-      "min_ms": 0.1,
-      "max_ms": 0.119,
-      "points_per_ms": 1000.0
+      "median_ms": 0.099,
+      "min_ms": 0.097,
+      "max_ms": 0.105,
+      "points_per_ms": 1020.2
     },
     {
       "periods": 15,
       "layers": 30,
       "n_points": 501,
       "repeats": 5,
-      "median_ms": 0.491,
-      "min_ms": 0.484,
-      "max_ms": 0.529,
-      "points_per_ms": 1020.4
+      "median_ms": 0.485,
+      "min_ms": 0.482,
+      "max_ms": 0.516,
+      "points_per_ms": 1033.0
     },
     {
       "periods": 15,
       "layers": 30,
       "n_points": 2001,
       "repeats": 5,
-      "median_ms": 2.114,
-      "min_ms": 1.978,
-      "max_ms": 2.33,
-      "points_per_ms": 946.5
+      "median_ms": 1.907,
+      "min_ms": 1.902,
+      "max_ms": 2.081,
+      "points_per_ms": 1049.3
     },
     {
       "periods": 16,
       "layers": 32,
       "n_points": 101,
       "repeats": 5,
-      "median_ms": 0.115,
+      "median_ms": 0.105,
       "min_ms": 0.104,
-      "max_ms": 0.125,
-      "points_per_ms": 878.3
+      "max_ms": 0.107,
+      "points_per_ms": 961.9
     },
     {
       "periods": 16,
       "layers": 32,
       "n_points": 501,
       "repeats": 5,
-      "median_ms": 0.574,
-      "min_ms": 0.518,
-      "max_ms": 0.617,
-      "points_per_ms": 872.8
+      "median_ms": 0.517,
+      "min_ms": 0.505,
+      "max_ms": 0.54,
+      "points_per_ms": 969.1
     },
     {
       "periods": 16,
       "layers": 32,
       "n_points": 2001,
       "repeats": 5,
-      "median_ms": 2.178,
-      "min_ms": 2.119,
-      "max_ms": 2.199,
-      "points_per_ms": 918.7
+      "median_ms": 2.158,
+      "min_ms": 2.02,
+      "max_ms": 2.423,
+      "points_per_ms": 927.2
     }
   ]
 }

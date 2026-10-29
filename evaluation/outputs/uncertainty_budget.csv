@@ -1,0 +1,5 @@
+wavelength_noise_nm,temperature_sensitivity_nm_per_k,temperature_resolution_k,strain_sensitivity_pm_per_microstrain,strain_resolution_microstrain
+0.001,0.065349,0.015302,1.6374,0.6107
+0.005,0.065349,0.076512,1.6374,3.0536
+0.01,0.065349,0.153024,1.6374,6.1072
+0.05,0.065349,0.765121,1.6374,30.536

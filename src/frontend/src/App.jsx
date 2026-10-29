@@ -8,7 +8,8 @@ import LayerStackView from "./components/LayerStackView.jsx";
 
 const INITIAL_PARAMS = { material_high: "Si", material_low: "SiO2",
                           centre_nm: 1550.0, periods: 15,
-                          temperature_c: 20.0, strain_microstrain: 0.0 };
+                          temperature_c: 20.0, strain_microstrain: 0.0,
+                          wavelength_noise_nm: 0.01 };
 const INITIAL_SWEEP  = { start_nm: 1400.0, stop_nm: 1700.0, n_points: 501 };
 
 export default function App() {
@@ -42,6 +43,10 @@ export default function App() {
               ` | T sensitivity ${result.meta.sensitivity_nm_per_k.toFixed(3)} nm/K`}
             {result.meta.strain_sensitivity_pm_per_microstrain != null &&
               ` | strain sensitivity ${result.meta.strain_sensitivity_pm_per_microstrain.toFixed(2)} pm/ue`}
+            {result.meta.temperature_resolution_k != null &&
+              ` | T resolution ${result.meta.temperature_resolution_k.toFixed(2)} K`}
+            {result.meta.strain_resolution_microstrain != null &&
+              ` | strain resolution ${result.meta.strain_resolution_microstrain.toFixed(1)} ue`}
           </div>
         )}
         <TolerancePanel params={params} sweep={sweep} />

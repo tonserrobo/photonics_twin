@@ -333,15 +333,16 @@ evaluation, export a scenario, and run the Docker stack without help.
 - [x] Add thermo-optic (`dn/dT`) and thermal-expansion response.
 - [x] Add geometric strain (thickness scaling) response.
 - [ ] Add photoelastic index change and ambient-index response.
-- [x] Report `nm/K` and `pm/microstrain` sensitivity and the stop-band centre
-  shift.
-- [ ] Report `nm/RIU`, detection limit, and a full uncertainty budget.
+- [x] Report `nm/K` and `pm/microstrain` sensitivity and the stop-band
+  centre shift.
+- [x] Add measurement-noise-limited temperature/strain resolution.
+- [ ] Report `nm/RIU` and add a full drift/calibration uncertainty budget.
 - [x] Add seeded Monte Carlo thickness tolerance and yield.
 - [ ] Add refractive-index variation and process-specific distributions.
 - [x] Add CSV/JSON export.
-- [ ] Add a batch sweep endpoint.
-- [x] Add Telecom and sensing-edge UI presets.
-- [ ] Add strain-gauge and refractive-index presets.
+- [x] Add a batch sweep endpoint.
+- [x] Add Telecom, sensing-edge and strain-gauge UI presets.
+- [ ] Add a refractive-index preset.
 - [ ] Validate against published sensitivity values; the current `0.065 nm/K`
   is checked against the effective-index estimate, not a measurement.
 

@@ -10,6 +10,7 @@ const PARAMS = {
   periods: 15,
   temperature_c: 20,
   strain_microstrain: 0,
+  wavelength_noise_nm: 0.01,
 };
 const SWEEP = { start_nm: 1400, stop_nm: 1700, n_points: 11 };
 
@@ -84,4 +85,15 @@ test("parseScenario rejects an out-of-range strain", () => {
   const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
   raw.params.strain_microstrain = 6000;
   assert.throws(() => parseScenario(JSON.stringify(raw)), /strain_microstrain out of range/);
+});
+test("parseScenario defaults wavelength noise for older scenarios", () => {
+  const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
+  delete raw.params.wavelength_noise_nm;
+  assert.equal(parseScenario(JSON.stringify(raw)).params.wavelength_noise_nm, 0.01);
+});
+
+test("parseScenario rejects an out-of-range wavelength noise", () => {
+  const raw = JSON.parse(toScenarioJson(PARAMS, SWEEP));
+  raw.params.wavelength_noise_nm = 2;
+  assert.throws(() => parseScenario(JSON.stringify(raw)), /wavelength_noise_nm out of range/);
 });

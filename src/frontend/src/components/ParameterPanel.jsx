@@ -7,6 +7,7 @@ const BASE_PARAMS = {
   periods: 15,
   temperature_c: 20,
   strain_microstrain: 0,
+  wavelength_noise_nm: 0.01,
 };
 
 const PRESETS = {
@@ -81,6 +82,10 @@ export default function ParameterPanel({ params, sweep, onChange }) {
         <input type="range" min="-5000" max="5000" step="100"
                value={params.strain_microstrain}
                onChange={(e) => set({ strain_microstrain: Number(e.target.value) })} />
+      </label>      <label>wavelength_noise_nm = {params.wavelength_noise_nm.toFixed(3)}
+        <input type="range" min="0.001" max="0.1" step="0.001"
+               value={params.wavelength_noise_nm}
+               onChange={(e) => set({ wavelength_noise_nm: Number(e.target.value) })} />
       </label>
  
       <h3>Sweep</h3>

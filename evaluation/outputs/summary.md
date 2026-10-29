@@ -62,6 +62,17 @@ Full study is in `strain_sensitivity.csv`. This is geometric strain only; photoe
 
 Yield counts a sample as failed if it has no detectable stop band or if its centre moves more than 2 nm. Full study is in `tolerance_study.csv`.
 
+## Measurement-noise resolution
+
+| noise (nm) | T sensitivity (nm/K) | T resolution (K) | strain sensitivity (pm/ue) | strain resolution (ue) |
+|---:|---:|---:|---:|---:|
+| 0.001 | 0.0653 | 0.015 | 1.637 | 0.61 |
+| 0.005 | 0.0653 | 0.077 | 1.637 | 3.05 |
+| 0.010 | 0.0653 | 0.153 | 1.637 | 6.11 |
+| 0.050 | 0.0653 | 0.765 | 1.637 | 30.54 |
+
+Full table is in `uncertainty_budget.csv`. This is measurement-noise limited only; it excludes drift, calibration, and linewidth effects.
+
 ## Throughput
 
-Highest measured throughput: 2968.8 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.
+Highest measured throughput: 3064.3 wavelength points/ms (5 periods, 2001 points). Times are medians of 5 runs on the generation host; see `benchmark.json`.
