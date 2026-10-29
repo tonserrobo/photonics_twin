@@ -145,3 +145,28 @@ TEST(BraggGrating, StrainRedshiftsStopBand) {
     EXPECT_GT(edge1000, edge0 + 0.5);
     EXPECT_LT(edge1000, edge0 + 3.0);
 }
+TEST(BraggGrating, ThicknessScalesChangeSpectrum) {
+    photonics::BraggGrating g(make_si(), make_sio2(), 1550.0, 2);
+
+    constexpr std::size_t N = 501;
+    std::vector<double> wl(N), R0(N), R1(N), R2(N);
+    for (std::size_t i = 0; i < N; ++i) {
+        wl[i] = 1400.0 + 300.0 * static_cast<double>(i) / (N - 1);
+    }
+    g.reflectance(wl.data(), N, R0.data());
+
+    g.set_thickness_scales(std::vector<double>{1.05, 0.95, 1.05, 0.95});
+    g.reflectance(wl.data(), N, R1.data());
+
+    double max_diff = 0.0;
+    for (std::size_t i = 0; i < N; ++i) {
+        max_diff = std::max(max_diff, std::abs(R1[i] - R0[i]));
+    }
+    EXPECT_GT(max_diff, 1e-3);
+
+    g.clear_thickness_scales();
+    g.reflectance(wl.data(), N, R2.data());
+    for (std::size_t i = 0; i < N; ++i) {
+        EXPECT_NEAR(R2[i], R0[i], 1e-12);
+    }
+}

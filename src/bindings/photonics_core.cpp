@@ -47,6 +47,14 @@ PYBIND11_MODULE(photonics_core, m) {
         .def("set_periods",   &BraggGrating::set_periods)
         .def("set_temperature_c", &BraggGrating::set_temperature_c)
         .def("set_strain_microstrain", &BraggGrating::set_strain_microstrain)
+        .def("set_thickness_scales",
+             [](BraggGrating& self, const std::vector<double>& scales) {
+                 if (scales.size() != 2 * self.periods()) {
+                     throw std::runtime_error("scales must have 2 * periods entries");
+                 }
+                 self.set_thickness_scales(scales);
+             }, py::arg("scales"))
+        .def("clear_thickness_scales", &BraggGrating::clear_thickness_scales)
         .def_property_readonly("centre_nm", &BraggGrating::centre_nm)
         .def_property_readonly("periods",   &BraggGrating::periods)
         .def_property_readonly("temperature_c", &BraggGrating::temperature_c)

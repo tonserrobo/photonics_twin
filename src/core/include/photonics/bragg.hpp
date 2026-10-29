@@ -1,5 +1,6 @@
 // src/core/include/photonics/bragg.hpp
 #pragma once
+#include <vector>
 #include "photonics/tmm.hpp"
 #include "photonics/materials.hpp"
 
@@ -13,6 +14,8 @@ public:
     void set_periods(std::size_t v);
     void set_temperature_c(real_t v);
     void set_strain_microstrain(real_t v);
+    void set_thickness_scales(const std::vector<real_t>& scales);
+    void clear_thickness_scales();
 
     real_t      centre_nm() const { return centre_nm_; }
     std::size_t periods()   const { return periods_; }
@@ -34,6 +37,7 @@ private:
     std::size_t periods_;
     real_t   temperature_c_ = T_REF_C;
     real_t   strain_microstrain_ = 0.0;
+    std::vector<real_t> thickness_scales_;
     LayerStack cached_stack_;
 };
 

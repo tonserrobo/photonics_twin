@@ -1,3 +1,4 @@
+import pytest
 import photonics_core as pc
 import numpy as np
 
@@ -133,3 +134,20 @@ def test_bragg_strain_redshift(si_coeffs, sio2_coeffs):
 
     assert edge_1000 > edge_0 + 0.5
     assert edge_1000 < edge_0 + 3.0
+def test_bragg_thickness_scales_change_spectrum(si_coeffs, sio2_coeffs):
+    si = pc.Material("Si", pc.SellmeierCoeffs(*si_coeffs))
+    sio = pc.Material("SiO2", pc.SellmeierCoeffs(*sio2_coeffs))
+    g = pc.BraggGrating(si, sio, 1550.0, 2)
+
+    wl = np.linspace(1400.0, 1700.0, 501, dtype=np.float64)
+    R0 = g.reflectance(wl)
+    g.set_thickness_scales([1.05, 0.95, 1.05, 0.95])
+    R1 = g.reflectance(wl)
+    assert np.max(np.abs(R1 - R0)) > 1e-3
+
+    g.clear_thickness_scales()
+    R2 = g.reflectance(wl)
+    assert np.allclose(R2, R0, atol=1e-12)
+
+    with pytest.raises(RuntimeError, match="2 \\* periods"):
+        g.set_thickness_scales([1.0, 1.0, 1.0])

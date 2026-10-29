@@ -13,13 +13,25 @@ BraggGrating::BraggGrating(Material high, Material low,
 }
 
 void BraggGrating::set_centre_nm(real_t v) { centre_nm_ = v; rebuild_stack_(); }
-void BraggGrating::set_periods(std::size_t v) { periods_ = v; rebuild_stack_(); }
+void BraggGrating::set_periods(std::size_t v) {
+    periods_ = v;
+    thickness_scales_.clear();
+    rebuild_stack_();
+}
 void BraggGrating::set_temperature_c(real_t v) {
     temperature_c_ = v;
     rebuild_stack_();
 }
 void BraggGrating::set_strain_microstrain(real_t v) {
     strain_microstrain_ = v;
+    rebuild_stack_();
+}
+void BraggGrating::set_thickness_scales(const std::vector<real_t>& scales) {
+    thickness_scales_ = scales;
+    rebuild_stack_();
+}
+void BraggGrating::clear_thickness_scales() {
+    thickness_scales_.clear();
     rebuild_stack_();
 }
 
@@ -35,9 +47,12 @@ void BraggGrating::rebuild_stack_() {
     const real_t t_l_ref = centre_nm_ / (real_t{4.0} * low_.n(centre_nm_, T_REF_C));
     const real_t t_h = t_h_ref * (real_t{1.0} + high_.cte() * delta_t) * strain_scale;
     const real_t t_l = t_l_ref * (real_t{1.0} + low_.cte() * delta_t) * strain_scale;
+    const bool has_scales = thickness_scales_.size() == periods_ * 2;
     for (std::size_t i = 0; i < periods_; ++i) {
-        cached_stack_.add_layer(t_h, high_);
-        cached_stack_.add_layer(t_l, low_);
+        const real_t s_h = has_scales ? thickness_scales_[2 * i] : real_t{1.0};
+        const real_t s_l = has_scales ? thickness_scales_[2 * i + 1] : real_t{1.0};
+        cached_stack_.add_layer(t_h * s_h, high_);
+        cached_stack_.add_layer(t_l * s_l, low_);
     }
 }
 
